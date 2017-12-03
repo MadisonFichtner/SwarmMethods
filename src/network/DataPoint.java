@@ -32,4 +32,16 @@ public class DataPoint {
 	public int getNumFeatures(){
 		return features.length;
 	}
+	
+	public void normalize() {
+		double length = 0;
+		for(double feature : features) {
+			length += feature*feature;
+		}
+		length = Math.sqrt(length);
+		
+		for(int i = 0; i < features.length; i++) {
+			features[i] /= length;
+		}
+	}
 }

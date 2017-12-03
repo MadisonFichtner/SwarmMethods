@@ -22,7 +22,7 @@ public class Neuron {
 		switch (actFun) {
 		case 1:						//represents a linear activation function
 			break;
-		case 2:						//sigmoidal - logistic
+		case 2:						//cnn activation
 			output = 1/(1+Math.exp(-output));
 			break;
 		}
@@ -54,7 +54,6 @@ public class Neuron {
 		for(int i = 0; i < ins.size(); i++){
 			output+=ins.get(i)*weights.get(i);				//calculate output
 		}
-		activate(); 										//call activation function to adjust output
 	}
 
 	//returns the weight of the connection this neuron has
@@ -70,6 +69,18 @@ public class Neuron {
 	//add weights to the list
 	public void addWeights(ArrayList<Double> weights){
 		this.weights.addAll(weights);
+	}
+	
+	public void normalize() {
+		double length = 0;
+		for(double weight : weights) {
+			length += weight*weight;
+		}
+		length = Math.sqrt(length);
+		
+		for(int i = 0; i < weights.size(); i++) {
+			weights.set(i, weights.get(i)/length);
+		}
 	}
 
 	//prints out info about neuron
