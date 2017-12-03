@@ -78,24 +78,27 @@ public class KMeans {
 		}
 		if(convergence == true) {
 			for(int i = 0; i < clusters.size(); i++) {
+				System.out.println("\nCluster " + (i + 1) + ":");
 				for(int j = 0; j < numFeatures; j++) {
 					System.out.printf("%.2f", clusters.get(i).getCenter().getFeature(j));
 					System.out.print("	");
 				}
 				System.out.println("");
 			}
-			System.out.println("Iterations required for the centroids to not be updated further: " + iterations);
+			System.out.println("");
+			System.out.println("\nIterations required for the centroids to not be updated further: " + iterations);
 			return true; //oldClusters == clusters;	
 		}
 		else if(iterations == 500) {
 			for(int i = 0; i < clusters.size(); i++) {
+				System.out.println("\nCluster " + (i + 1) + ":");
 				for(int j = 0; j < numFeatures; j++) {
 					System.out.printf("%.2f", clusters.get(i).getCenter().getFeature(j));
 					System.out.print("	");
 				}
 				System.out.println("");
 			}
-			System.out.println("KMeans ran all " + iterations + " without the centroids converging");
+			System.out.println("\nKMeans ran all " + iterations + " iterations without the centroids converging");
 			return true;
 		}
 		return false;

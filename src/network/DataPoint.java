@@ -14,6 +14,17 @@ public class DataPoint {
 		this.label = null;
 	}
 	
+	public double calcDistance(DataPoint other) {
+		double distance = 0;
+		for(int i = 0; i < other.getNumFeatures(); i++) {
+			double difference = this.getFeature(i) - other.getFeature(i);
+			difference = Math.pow(difference, 2);
+			distance += difference;
+		}
+		distance = Math.sqrt(distance);
+		return distance;
+}
+	
 	public void setLabel(Cluster label){
 		this.label = label;
 	}

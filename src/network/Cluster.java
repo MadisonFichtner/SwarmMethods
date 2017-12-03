@@ -21,6 +21,7 @@ public class Cluster {
 	public Cluster(int numFeatures) {
 		double[] dataPoints = new double[numFeatures];
 		this.center = new DataPoint(dataPoints);
+		this.members = new ArrayList<>();
 	}
 	
 	public Cluster(DataPoint center, ArrayList<DataPoint> members) {
@@ -69,4 +70,14 @@ public class Cluster {
 	public ArrayList<DataPoint> getMembers() {
 		return members;
 	}
+	
+	public boolean hasMember(DataPoint member) {
+		boolean contains = false;
+		if(members.contains(member))
+			contains = true;
+		else if(members.contains(member) != true)
+			contains = false;
+		return contains;
+	}
+	
 }

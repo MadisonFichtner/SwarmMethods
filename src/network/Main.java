@@ -14,7 +14,7 @@ public class Main {
 		ArrayList<DataPoint> data = new ArrayList<DataPoint>();						//create list of samples to use - dataset essentially
 		int numInputs = 0;
 		int numDataPoints = 0;
-		String filename = "energy.txt";
+		String filename = "haberman.data";
 		try {
 			Scanner s = new Scanner(new File(filename));							//create a new scanner, checks lines of data in file
 			while (s.hasNextLine()) {												//loop while there is another line
@@ -84,8 +84,10 @@ public class Main {
 			clusteredData = kmeans.cluster(data);
 			break;
 		case 2:	
-			double epsilon = 100;
-			int minPoints = 5;
+			System.out.println("Enter epsilon (max distance between neighbors): ");
+			double epsilon = in.nextDouble();
+			System.out.println("Enter minimum points required to make cluster: ");
+			int minPoints = in.nextInt();
 			DBScan dbScan = new DBScan(data, epsilon, minPoints);
 			clusteredData = dbScan.cluster(data);
 			break;
