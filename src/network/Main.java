@@ -28,7 +28,7 @@ public class Main {
 					double element = Double.parseDouble(lineScan.next());
 					inputs.add(element);													//parse the token to be a double and add to the input arraylist
 				}																		//update counter to reflect input size (total - 1, since last token is output
-				//counter--;	//commented out to allow all 4 values of datapoint to be passed through
+				counter--;	//commented out to allow all 4 values of datapoint to be passed through
 				double[] passIn = new double[counter];									//this is the array that will be passed to sample class
 				for (int i = 0; i < counter; i++) {
 					passIn[i] = inputs.get(i);											//initialize the input array
@@ -84,7 +84,9 @@ public class Main {
 			clusteredData = kmeans.cluster(data);
 			break;
 		case 2:	
-			DBScan dbScan = new DBScan();
+			double epsilon = 100;
+			int minPoints = 5;
+			DBScan dbScan = new DBScan(data, epsilon, minPoints);
 			clusteredData = dbScan.cluster(data);
 			break;
 		case 3:

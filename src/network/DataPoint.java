@@ -17,6 +17,10 @@ public class DataPoint {
 	public void setLabel(Cluster label){
 		this.label = label;
 	}
+	
+	public Cluster getLabel() {
+		return label;
+	}
 
 	//returns feature at a specific index
 	//@param index: the index of the array needing to be returned

@@ -28,6 +28,13 @@ public class Cluster {
 		this.members = members;
 	}
 	
+	public Cluster(ArrayList<DataPoint> members) {
+		int numFeatures = members.get(0).getFeatures().length;
+		double[] dataPoints = new double [numFeatures];
+		this.center = new DataPoint(dataPoints);
+		this.members = members;
+	}
+	
 	public void addPoint(DataPoint point) {
 		members.add(point);
 	}
