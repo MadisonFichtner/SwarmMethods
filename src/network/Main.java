@@ -28,7 +28,7 @@ public class Main {
 					double element = Double.parseDouble(lineScan.next());
 					inputs.add(element);													//parse the token to be a double and add to the input arraylist
 				}																		//update counter to reflect input size (total - 1, since last token is output
-				//counter--;	//commented out to allow all 4 values of datapoint to be passed through
+				counter--;	//commented out to allow all 4 values of datapoint to be passed through
 				double[] passIn = new double[counter];									//this is the array that will be passed to sample class
 				for (int i = 0; i < counter; i++) {
 					passIn[i] = inputs.get(i);											//initialize the input array
@@ -70,7 +70,7 @@ public class Main {
 		System.out.println("\t5)Ant Colony Optimization (ACO)");
 
 		int selection = in.nextInt();
-		in.close();
+		//in.close();
 
 		Collections.shuffle(data);													//randomize the data
 
@@ -78,12 +78,17 @@ public class Main {
 		ArrayList<Cluster> clusteredData;
 		switch(selection){
 		case 1:	
-			int k = 5;
+			System.out.println("How many centroids?");
+			int k = in.nextInt();
 			KMeans kmeans = new KMeans(data, k);
 			clusteredData = kmeans.cluster(data);
 			break;
 		case 2:	
-			DBScan dbScan = new DBScan();
+			System.out.println("Enter epsilon (max distance between neighbors): ");
+			double epsilon = in.nextDouble();
+			System.out.println("Enter minimum points required to make cluster: ");
+			int minPoints = in.nextInt();
+			DBScan dbScan = new DBScan(data, epsilon, minPoints);
 			clusteredData = dbScan.cluster(data);
 			break;
 		case 3:
@@ -99,5 +104,6 @@ public class Main {
 			clusteredData = aco.cluster(data);
 			break;
 		}
+		in.close();
 	}
 }

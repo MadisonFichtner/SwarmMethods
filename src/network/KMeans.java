@@ -35,6 +35,7 @@ public class KMeans {
 	}
 	
 	public ArrayList<Cluster> cluster(ArrayList<DataPoint> dataSet) {
+		oldClusters = new ArrayList<Cluster>(numFeatures);
 		while(shouldStop(oldClusters, clusters, iterations) == false) {
 			oldClusters = clusters;								//Set old clusters to current clusters
 			iterations++;										//Increment iterations
@@ -48,16 +49,56 @@ public class KMeans {
 	
 	//Returns true or false if k-means is done.
 	public boolean shouldStop(ArrayList<Cluster> oldClusters, ArrayList<Cluster> clusters, int iterations) {
-		if(oldClusters == clusters)
-			return oldClusters == clusters;	//TODO
-		else if(iterations == 500) {
+		boolean equals = false; //oldClusters == clusters
+		int converged = 0;
+		for(int i = 0; i < clusters.size(); i++) {
+			if(oldClusters.size() == 0)
+				break;
+			else {
+				DataPoint tempDataPoint1 = clusters.get(i).getCenter();
+				DataPoint tempDataPoint2 = oldClusters.get(i).getCenter();
+				boolean same = false;
+				for(int j = 0; j < numFeatures; j++) {
+					 double newDouble1 = Math.floor(tempDataPoint1.getFeature(j) * 1000);
+					 double newDouble2 = Math.floor(tempDataPoint2.getFeature(j) * 1000);
+					same = newDouble1 == newDouble2;
+					if(same) {//Math.floor(tempDataPoint1.getFeature(j) * 1000) == Math.floor(tempDataPoint2.getFeature(j) * 1000))
+						converged++;
+					}
+					else if(!same)
+						break;
+				}
+				if(!same)
+					break;
+			}
+		}
+		boolean convergence = false;
+		if(converged == numFeatures * clusters.size()) {
+			convergence = true;
+		}
+		if(convergence == true) {
 			for(int i = 0; i < clusters.size(); i++) {
+				System.out.println("\nCluster " + (i + 1) + ":");
 				for(int j = 0; j < numFeatures; j++) {
 					System.out.printf("%.2f", clusters.get(i).getCenter().getFeature(j));
 					System.out.print("	");
 				}
 				System.out.println("");
 			}
+			System.out.println("");
+			System.out.println("\nIterations required for the centroids to not be updated further: " + iterations);
+			return true; //oldClusters == clusters;	
+		}
+		else if(iterations == 500) {
+			for(int i = 0; i < clusters.size(); i++) {
+				System.out.println("\nCluster " + (i + 1) + ":");
+				for(int j = 0; j < numFeatures; j++) {
+					System.out.printf("%.2f", clusters.get(i).getCenter().getFeature(j));
+					System.out.print("	");
+				}
+				System.out.println("");
+			}
+			System.out.println("\nKMeans ran all " + iterations + " iterations without the centroids converging");
 			return true;
 		}
 		return false;
@@ -69,6 +110,10 @@ public class KMeans {
 		for(int i = 0; i < dataSet.size(); i++) {									
 			Cluster nearestCluster = new Cluster(numFeatures);						//Create temporary cluster with the specified number of features
 			for(int j = 0; j < k; j++) {											//for each cluster
+				double distance1 = 0;
+				double distance2 = 0;
+				distance1 = getDistanceTo(dataSet.get(i), clusters.get(j));
+				distance2 = getDistanceTo(dataSet.get(i), nearestCluster);
 				if(getDistanceTo(dataSet.get(i), clusters.get(j)) < getDistanceTo(dataSet.get(i), nearestCluster) && getDistanceTo(dataSet.get(i), nearestCluster) != 0) {		//if distance to next cluster is closer than current nearestCluster, change them
 					nearestCluster = clusters.get(j);								//Set nearestCluster to the new closer cluster
 					selectedCluster = j;											//Set the selectedCluster integer to whatever iteration the for loop is in
