@@ -23,7 +23,7 @@ public class PSO {
 			for (int i = 0; i < particleNum; i++) {								//for each particle
 				particles.get(i).setGBest(gBest.getFitness());					//update the gBest of every particle
 				Cluster c = particles.get(i).update(data);						//then update the velocity and cluster of each particle
-				if (i == particleNum - 1) {
+				if (t == 499) {
 					clusters.add(c);											//add the last cluster of each particle to the list - the "best" clusters
 				}
 			}
