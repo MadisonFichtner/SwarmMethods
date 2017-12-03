@@ -82,6 +82,9 @@ public class Main {
 			int k = in.nextInt();
 			KMeans kmeans = new KMeans(data, k);
 			clusteredData = kmeans.cluster(data);
+			for(int i = 0; i < clusteredData.size(); i++) {
+				System.out.println("Cluster " + (i+1) + "'s data points average distance to centroid: " + calcAverageDistance(clusteredData.get(i)));
+			}
 			break;
 		case 2:	
 			System.out.println("Enter epsilon (max distance between neighbors): ");
@@ -105,5 +108,17 @@ public class Main {
 			break;
 		}
 		in.close();
+	}
+	
+	/*
+	 * returns the average distance from centroid to members of the cluster
+	 */
+	private static double calcAverageDistance(Cluster cluster) {
+		double averageDistance = 0;
+		for(int i = 0; i < cluster.getMembers().size(); i++) {
+			averageDistance += cluster.getMembers().get(i).calcDistance(cluster.getCenter());
+		}
+		averageDistance = averageDistance / cluster.getMembers().size();
+		return averageDistance;
 	}
 }
