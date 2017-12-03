@@ -45,7 +45,7 @@ public class Cluster {
 	}
 
 	//Logic to update center based on the current members using the geometric mean of each feature
-	public Cluster updateCenter(int numFeatures) {
+	public Cluster updateCenter(int numFeatures, ArrayList<DataPoint> data) {
 		double[] newFeatures = new double[numFeatures];
 		ArrayList<DataPoint> pointsInCluster = members;
 		for(int k = 0; k < numFeatures; k++) {
@@ -57,6 +57,11 @@ public class Cluster {
 			mean = mean / numFeatures;
 			//mean = Math.pow(mean, 1.0 / pointsInCluster.size());							//takes the numFeatures root of the mean
 			newFeatures[k] = mean;
+		}
+		if(members.size() == 0) {
+			DataPoint newCenter = new DataPoint(data.get(rand.nextInt(data.size())).getFeatures());	//set center to random point in data
+			Cluster newCluster = new Cluster(newCenter, members);
+			return newCluster;
 		}
 		DataPoint newCenter = new DataPoint(newFeatures);
 		Cluster newCluster = new Cluster(newCenter, members);

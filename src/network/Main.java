@@ -83,7 +83,7 @@ public class Main {
 			KMeans kmeans = new KMeans(data, k);
 			clusteredData = kmeans.cluster(data);
 			for(int i = 0; i < clusteredData.size(); i++) {
-				System.out.println("Cluster " + (i+1) + "'s data points average distance to centroid: " + calcAverageDistance(clusteredData.get(i)));
+				System.out.println("Cluster " + (i+1) + "'s average distance between data points: " + calcAverageDistance(clusteredData.get(i)));
 			}
 			break;
 		case 2:	
@@ -93,6 +93,9 @@ public class Main {
 			int minPoints = in.nextInt();
 			DBScan dbScan = new DBScan(data, epsilon, minPoints);
 			clusteredData = dbScan.cluster(data);
+			for(int i = 0; i < clusteredData.size(); i++) {
+				System.out.println("Cluster " + (i+1) + "'s average distance between data points: " + calcAverageDistance(clusteredData.get(i)));
+			}
 			break;
 		case 3:
 			CNN cnn = new CNN(numInputs, numHidLayers, numHidNodes, numOutputs, hiddenActivation, outputActivation);
@@ -116,7 +119,9 @@ public class Main {
 	private static double calcAverageDistance(Cluster cluster) {
 		double averageDistance = 0;
 		for(int i = 0; i < cluster.getMembers().size(); i++) {
-			averageDistance += cluster.getMembers().get(i).calcDistance(cluster.getCenter());
+			for(int j = 0; j < cluster.getMembers().size(); j++) {
+				averageDistance += cluster.getMembers().get(i).calcDistance(cluster.getMembers().get(j));
+			}
 		}
 		averageDistance = averageDistance / cluster.getMembers().size();
 		return averageDistance;
