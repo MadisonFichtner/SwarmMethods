@@ -24,7 +24,7 @@ public class Particle {
 		 */
 		
 		
-		clusterRad = 0.001 + (Math.random() * 10.999);								//initialize the cluster radius to be a random number between 0.001 and 10
+		clusterRad = 0.001 + (Math.random() * 100.999);								//initialize the cluster radius to be a random number between 0.001 and 100
 		velocity = -10 + (Math.random() * 21);										//initialize velocity to be between -10 and 10 to encourage varying rates of convergence
 		cluster(data);
 	}

@@ -9,7 +9,7 @@ public class Ant {
 	private double fitness;
 
 	public Ant(ArrayList<DataPoint> data) {
-		clusterRad = 0.001 + (Math.random() * 10.999);								//initialize the cluster radius to be a random number between 0.001 and 10
+		clusterRad = 0.001 + (Math.random() * 100.999);								//initialize the cluster radius to be a random number between 0.001 and 100
 		cluster(data);
 		fitness = calcFitness();
 	}

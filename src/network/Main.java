@@ -2,7 +2,6 @@ package network;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Scanner;
 
 /*	Main class drives the creation and training of networks for Project 4. It reads in data files (which we manually have to specify) and then
@@ -93,6 +92,7 @@ public class Main {
 		case 4:		
 			PSO pso = new PSO();
 			clusteredData = pso.cluster(data);
+			//System.out.printf("\nPSO produced %d clusters with an average distance between points of %.2f", clusteredData.size(), someVariable);
 			break;
 		case 5:
 			ACO aco = new ACO();
