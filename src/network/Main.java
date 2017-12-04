@@ -91,10 +91,13 @@ public class Main {
 			break;
 		case 4:		
 			PSO pso = new PSO();
-			clusteredData = pso.cluster(data);
-			for (int i = 0; i < clusteredData.size(); i++) {
-				double err = calcError(clusteredData.get(i));
-				System.out.printf("\nCluster %d had error %.2f", (i+1), err);
+			for (int t = 0; t < 10; t++) {
+				clusteredData = pso.cluster(data);
+				for (int i = 0; i < clusteredData.size(); i++) {
+					double err = calcError(clusteredData.get(i));
+					System.out.printf("\nCluster %d had an average distance between points of %f", (i+1), err);
+				}
+				System.out.println();
 			}
 			break;
 		case 5:
@@ -102,14 +105,14 @@ public class Main {
 			clusteredData = aco.cluster(data);
 			for (int i = 0; i < clusteredData.size(); i++) {
 				double err = calcError(clusteredData.get(i));
-				System.out.printf("\nCluster %d had error %.2f", (i+1), err);
+				System.out.printf("\nCluster %d had an average distance between points of %.5f", (i+1), err);
 			}
 			break;
 		}
 	}
 
 	public static double calcError(Cluster c) {
-		double counter = 0;
+		double counter = 1;
 		double total = 0;
 		double ave = 0;
 		for (int i = 0; i < c.getMembers().size(); i++) {
@@ -119,9 +122,6 @@ public class Main {
 			}
 		}
 		ave = total / counter;										//then calculate the average distance between points
-		
-		//now give fitness value based on average
-		double normalizedAve = 1 / (1 + Math.exp(-ave));			//normalize the average to be between 0 and 1 with sigmoidal function
-		return 1 - normalizedAve;									//assign a fitness value based on that average distance
+		return ave;
 	}
 }
