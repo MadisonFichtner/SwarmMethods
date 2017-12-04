@@ -92,6 +92,7 @@ public class Main {
 		case 4:		
 			PSO pso = new PSO();
 			double total = 0;
+			System.out.println("Average distance between points in the clusters is:");
 			for (int t = 0; t < 500; t++) {
 				clusteredData = pso.cluster(data);
 				for (int i = 0; i < clusteredData.size(); i++) {
@@ -99,16 +100,22 @@ public class Main {
 					total += err;
 				}
 				double ave = total / clusteredData.size();
-				System.out.printf("\nAverage distance between points in the clusters is %f", ave);
+				System.out.println(ave);
 				total = 0;
 			}
 			break;
 		case 5:
 			ACO aco = new ACO();
-			clusteredData = aco.cluster(data);
-			for (int i = 0; i < clusteredData.size(); i++) {
-				double err = calcError(clusteredData.get(i));
-				System.out.printf("\nCluster %d had an average distance between points of %.5f", (i+1), err);
+			total = 0;
+			for (int t = 0; t < 500; t++) {
+				clusteredData = aco.cluster(data);
+				for (int i = 0; i < clusteredData.size(); i++) {
+					double err = calcError(clusteredData.get(i));
+					total += err;
+				}
+				double ave = total / clusteredData.size();
+				System.out.println(ave);
+				total = 0;
 			}
 			break;
 		}
