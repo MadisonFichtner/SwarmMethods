@@ -89,7 +89,7 @@ public class KMeans {
 			System.out.println("\nIterations required for the centroids to not be updated further: " + iterations);
 			return true; //oldClusters == clusters;	
 		}
-		else if(iterations == 1000) {
+		else if(iterations == 100000) {
 			for(int i = 0; i < clusters.size(); i++) {
 				System.out.println("\nCluster " + (i + 1) + ":");
 				for(int j = 0; j < numFeatures; j++) {
