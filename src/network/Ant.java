@@ -11,7 +11,7 @@ public class Ant {
 	public Ant(ArrayList<DataPoint> data) {
 		clusterRad = 0.001 + (Math.random() * 100.999);								//initialize the cluster radius to be a random number between 0.001 and 100
 		cluster(data);
-		fitness = calcFitness();
+		fitness = calcFitness();	//needs to be random actually
 	}
 
 

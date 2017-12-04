@@ -18,13 +18,7 @@ public class Particle {
 	
 	//creates a new particle
 	public Particle(ArrayList<DataPoint> data) {
-		
-		/*
-		 * NEED TO TUNE CLUSTERRAD RANGE
-		 */
-		
-		
-		clusterRad = 0.001 + (Math.random() * 100.999);								//initialize the cluster radius to be a random number between 0.001 and 100
+		clusterRad = 0.001 + (Math.random() * 10000.999);							//initialize the cluster radius to be a random number between 0.001 and 10000
 		velocity = -10 + (Math.random() * 21);										//initialize velocity to be between -10 and 10 to encourage varying rates of convergence
 		cluster(data);
 	}
