@@ -91,13 +91,16 @@ public class Main {
 			break;
 		case 4:		
 			PSO pso = new PSO();
-			for (int t = 0; t < 10; t++) {
+			double total = 0;
+			for (int t = 0; t < 500; t++) {
 				clusteredData = pso.cluster(data);
 				for (int i = 0; i < clusteredData.size(); i++) {
 					double err = calcError(clusteredData.get(i));
-					System.out.printf("\nCluster %d had an average distance between points of %f", (i+1), err);
+					total += err;
 				}
-				System.out.println();
+				double ave = total / clusteredData.size();
+				System.out.printf("\nAverage distance between points in the clusters is %f", ave);
+				total = 0;
 			}
 			break;
 		case 5:
