@@ -14,7 +14,7 @@ public class Main {
 		ArrayList<DataPoint> data = new ArrayList<DataPoint>();						//create list of samples to use - dataset essentially
 		int numInputs = 0;
 		int numDataPoints = 0;
-		String filename = "wine.txt";
+		String filename = "car.txt";
 		try {
 			Scanner s = new Scanner(new File(filename));							//create a new scanner, checks lines of data in file
 			while (s.hasNextLine()) {												//loop while there is another line
@@ -46,13 +46,8 @@ public class Main {
 		}
 		catch (Exception e) {
 			System.out.println("File not found.");
-		}
-		
-		for(DataPoint d : data){
-			for(double input : d.getFeatures()){
-				System.out.print(input + " ");
-			}
-			System.out.println();
+			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 
 		int numHidLayers = 0;															//specify network configurations - here is where we will tune the CNN
@@ -87,7 +82,7 @@ public class Main {
 			clusteredData = dbScan.cluster(data);
 			break;
 		case 3:
-			CNN cnn = new CNN(numInputs, numHidLayers, numHidNodes, numOutputs, hiddenActivation, outputActivation);
+			CNN cnn = new CNN(numInputs, numHidLayers, numHidNodes, numOutputs, hiddenActivation, outputActivation, data);
 			clusteredData = cnn.cluster(data);
 			break;
 		case 4:		

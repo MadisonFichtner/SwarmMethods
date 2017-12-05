@@ -1,27 +1,22 @@
 package network;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 /*	The Network class represents a single network in a population and its related functions and attributes. This class
  * 	is changed a bit from Project 2, as it had to incorporate new functionality for the 3 new training algorithms.
  */
 
-public class CNN implements Comparable<CNN>{
+public class CNN{
 	private Random random = new Random();
 	private ArrayList<Layer> layers;
 	private double learningRate;
-	private ArrayList<ArrayList<Double>> genes = new ArrayList<ArrayList<Double>>();
-	private ArrayList<ArrayList<Double>> sigmas = new ArrayList<>();
-	private double fitness;
-	private double mutationRate;
-	private double crossoverRate;
 	private int numInputs;
 	private int numHidLayers;
 	private int numHidNodes;
 	private int numOutputs;
 	private int actFunHidden;
 	private int actFunOutput;
+	private ArrayList<Cluster> clusters;
 
 	/*
 	 * Create an MLP network
@@ -31,7 +26,7 @@ public class CNN implements Comparable<CNN>{
 	 * @param numOutputs: number of output nodes
 	 * @param actFun: type of activation function for nodes
 	 */
-	public CNN(int numInputs, int numHidLayers, int numHidNodes, int numOutputs, int actFunHidden, int actFunOutput) {
+	public CNN(int numInputs, int numHidLayers, int numHidNodes, int numOutputs, int actFunHidden, int actFunOutput, ArrayList<DataPoint> data) {
 		layers = new ArrayList<Layer>();
 		//create input layer with inputs number of nodes and a linear activation function
 		layers.add(new Layer(numInputs, 1));
@@ -44,35 +39,27 @@ public class CNN implements Comparable<CNN>{
 		//create output layer with outputs number of nodes and given activation function
 		layers.add(new Layer(numOutputs, actFunOutput));
 		
-		//add connections between layers
-		for(int i = 0; i < layers.size()-1; i++) {
-			for(int j = 0; j < layers.get(i).size(); j++) {
-				for(int k = 0; k < layers.get(i+1).size(); k++){
-					double weight = random.nextDouble();
-					layers.get(i).getNeuron(j).addWeight(weight);
-				}
+		/*for(int i = 0; i < layers.get(1).size(); i++){
+			DataPoint point = data.get(random.nextInt(data.size()));
+			for(int j = 0; j < layers.get(0).size(); j++){
+				layers.get(0).getNeuron(j).addWeight(point.getFeature(j));
+			}
+		}*/
+		
+		for(int i = 0; i < layers.get(0).size(); i++){
+			for(int j = 0; j < layers.get(1).size(); j++){
+				layers.get(0).getNeuron(i).addWeight(random.nextDouble());
 			}
 		}
+		printNetwork();
 		
-		//adds weight vector of each neuron in the network to the genes list
-		for(Layer layer : layers){
-			for(int i = 0; i < layer.size(); i++){
-				genes.add(layer.getNeuron(i).getWeights());
-			}
-		}
-		
-		//initialize sigmas to random nubmer between 0 and 1
-		for(int i = 0; i < genes.size(); i++){
-			sigmas.add(new ArrayList<Double>());
-			for(int j = 0; j < genes.get(i).size(); j++){
-				sigmas.get(i).add(random.nextDouble());
-			}
+		clusters = new ArrayList<>();
+		for(int i = 0; i < numOutputs; i++){
+			clusters.add(new Cluster());
 		}
 		
 		//this block represents our manually tunable parameters
-		this.learningRate = 0.1;
-		this.mutationRate = 0.01;
-		this.crossoverRate = 0.95;
+		this.learningRate = 0.01;
 		this.numInputs = numInputs;
 		this.numHidLayers = numHidLayers;
 		this.numHidNodes = numHidNodes;
@@ -82,22 +69,93 @@ public class CNN implements Comparable<CNN>{
 	}
 
 	public ArrayList<Cluster> cluster(ArrayList<DataPoint> data) {
-		for(DataPoint point : data) {
-			point.normalize();
+		for(int i = 0; i < layers.get(0).size(); i++) {	//iterate through input layer to normalize weights
+			Neuron cur = layers.get(0).getNeuron(i);
+			cur.normalize();
+		}
+		
+		int numChanges = 0;
+		int changeResetCounter = 0;
+		
+		//randomly get points from data to train the network
+		for(int i = 0; i < 100000; i++) {
+			DataPoint point = data.get(random.nextInt(data.size())); //get random point from data
+			point.normalize();		//normalize data point
 			calcOutputs(point.getFeatures());
 			int winner = 0;
 			double best = 0;
-			for(int i = 0 ; i < layers.get(1).size(); i++) {
-				if(layers.get(1).getNeuron(i).getOutput() > best) {
-					winner = i;
-					best = layers.get(1).getNeuron(i).getOutput();
+			for(int j = 0 ; j < layers.get(1).size(); j++) {
+				if(layers.get(1).getNeuron(j).getOutput() > best) {
+					winner = j;
+					best = layers.get(1).getNeuron(j).getOutput();
 				}
 			}
-			System.out.println(winner);
+			Cluster cRemoved = null;
+			for(Cluster c : clusters){
+				if(c.removePoint(point)) //remove this point from any other clusters
+					cRemoved = c;		 //the cluster from which the point was removed
+			}
+			
+			if(cRemoved == null)
+				numChanges++;
+			else if(cRemoved != clusters.get(winner))
+				numChanges++;
+			
+			clusters.get(winner).addPoint(point);	//add point to the winning cluster
+			
+			//printNetwork();
+			/*String pointData = "";
+			for(double feature : point.getFeatures())
+				pointData += String.format("%.2f", feature) + " ";
+			System.out.println(pointData + ": cluster " + (winner+1));*/
+			
+			
 			updateWeights(winner);
+			
+			changeResetCounter++;
+			if(changeResetCounter >= 100){
+				System.out.println("Number of Changes:  " + numChanges);
+				
+				if(numChanges < 5){	//end training if fewer than 5 changes
+					printNetwork();
+					break;
+				}
+				
+				numChanges = 0;
+				changeResetCounter = 0;
+			}
 		}
-		printNetwork();
-		return null;
+		
+		for(Cluster c : clusters){
+			System.out.println("Size of Cluster " + (clusters.indexOf(c)+1) +  ": " + c.getMembers().size());
+		}
+		
+		//reset clusters
+		for(Cluster c : clusters){
+			c.getMembers().removeAll(data);
+		}
+		
+		//cluster all data by forward iterating through data
+		for(DataPoint point : data){
+			point.normalize();		//normalize data point
+			calcOutputs(point.getFeatures());
+			int winner = 0;
+			double best = 0;
+			for(int j = 0 ; j < layers.get(1).size(); j++) {
+				if(layers.get(1).getNeuron(j).getOutput() > best) {
+					winner = j;
+					best = layers.get(1).getNeuron(j).getOutput();
+				}
+			}
+			
+			clusters.get(winner).addPoint(point);	//add point to the winning cluster
+		}
+		
+		for(Cluster c : clusters){
+			System.out.println("Size of Cluster " + (clusters.indexOf(c)+1) +  ": " + c.getMembers().size());
+		}
+		
+		return clusters;
 	}
 
 	//Randomly reset weights in network
@@ -135,7 +193,7 @@ public class CNN implements Comparable<CNN>{
 	public void updateWeights(int winNeuron) {
 		for(int i = 0; i < layers.get(0).size(); i++) {	//iterate through input layer to update weights
 			Neuron cur = layers.get(0).getNeuron(i);
-			double newWeight = cur.getWeightTo(winNeuron) + learningRate*cur.getOutput();
+			double newWeight = cur.getWeightTo(winNeuron) + learningRate*(cur.getOutput()-cur.getWeightTo(winNeuron));
 			cur.setWeightTo(winNeuron, newWeight);
 			cur.normalize();
 		}
@@ -146,54 +204,6 @@ public class CNN implements Comparable<CNN>{
 		for(Layer l : layers) {
 			l.printLayer(layers.indexOf(l)+1);
 		}
-	}
-	
-	//prints out information about the genes
-	public void printGenes(){
-		System.out.println("\nGenes:");
-		for(int i = 0; i < genes.size(); i++){
-			System.out.println(genes.get(i));
-		}
-		System.out.println();
-	}
-	
-	//prints out sigma information
-	public void printSigmas(){
-		System.out.println("\nSigmas:");
-		for(int i = 0; i < sigmas.size(); i++){
-			System.out.println(sigmas.get(i));
-		}
-		System.out.println();
-	}
-	
-	//returns the network's fitness rating
-	public double getFitness() {
-		return fitness;
-	}
-	
-	//sets the network's fitness rating
-	public void setFitness(double value) {
-		fitness = value;
-	}
-	
-	//returns the list of the network's genes
-	public ArrayList<ArrayList<Double>> getGenes(){
-		return genes;
-	}
-	
-	//returns the list of the network's sigma values
-	public ArrayList<ArrayList<Double>> getSigmas(){
-		return sigmas;
-	}
-	
-	//sets a network's individual gene
-	public void setGene(int i, int j, double value){
-		genes.get(i).set(j, value);
-	}
-	
-	//sets a network's individual sigma value
-	public void setSigma(int i, int j, double value){
-		sigmas.get(i).set(j, value);
 	}
 	
 	//returns the number of network inputs
@@ -226,22 +236,9 @@ public class CNN implements Comparable<CNN>{
 		return actFunOutput;
 	}
 	
-	//returns the mutation rate of the network
-	public double getMutationRate(){
-		return mutationRate;
-	}
-	
 	//returns the learning rate for assessment of convergence rate
 	public double getLearningRate(){
 		return learningRate;
-	}
-
-	//compares the fitness of two networks
-	@Override
-	public int compareTo(CNN o) {
-		if(this.fitness < o.fitness)
-			return 1;
-		return -1;
 	}
 }
 
