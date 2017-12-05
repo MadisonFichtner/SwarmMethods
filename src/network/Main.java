@@ -14,7 +14,7 @@ public class Main {
 		ArrayList<DataPoint> data = new ArrayList<DataPoint>();						//create list of samples to use - dataset essentially
 		int numInputs = 0;
 		int numDataPoints = 0;
-		String filename = "haberman.data";
+		String filename = "wine.data";
 		try {
 			Scanner s = new Scanner(new File(filename));							//create a new scanner, checks lines of data in file
 			while (s.hasNextLine()) {												//loop while there is another line
@@ -82,6 +82,9 @@ public class Main {
 			int k = in.nextInt();
 			KMeans kmeans = new KMeans(data, k);
 			clusteredData = kmeans.cluster(data);
+			for(int i = 0; i < clusteredData.size(); i++) {
+				System.out.println("Cluster " + (i+1) + "'s average distance between data points: " + calcAverageDistance(clusteredData.get(i)));
+			}
 			break;
 		case 2:	
 			System.out.println("Enter epsilon (max distance between neighbors): ");
@@ -90,6 +93,9 @@ public class Main {
 			int minPoints = in.nextInt();
 			DBScan dbScan = new DBScan(data, epsilon, minPoints);
 			clusteredData = dbScan.cluster(data);
+			for(int i = 0; i < clusteredData.size(); i++) {
+				System.out.println("Cluster " + (i+1) + "'s average distance between data points: " + calcAverageDistance(clusteredData.get(i)));
+			}
 			break;
 		case 3:
 			CNN cnn = new CNN(numInputs, numHidLayers, numHidNodes, numOutputs, hiddenActivation, outputActivation);
@@ -105,5 +111,19 @@ public class Main {
 			break;
 		}
 		in.close();
+	}
+	
+	/*
+	 * returns the average distance from centroid to members of the cluster
+	 */
+	private static double calcAverageDistance(Cluster cluster) {
+		double averageDistance = 0;
+		for(int i = 0; i < cluster.getMembers().size(); i++) {
+			for(int j = 0; j < cluster.getMembers().size(); j++) {
+				averageDistance += cluster.getMembers().get(i).calcDistance(cluster.getMembers().get(j));
+			}
+		}
+		averageDistance = averageDistance / cluster.getMembers().size();
+		return averageDistance;
 	}
 }
