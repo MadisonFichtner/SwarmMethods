@@ -119,7 +119,7 @@ public class Main {
 			ACO aco = new ACO();
 			total = 0;
 			for (int t = 0; t < 500; t++) {
-				clusteredData = aco.cluster(data);
+				clusteredData = aco.cluster(data, 5);
 				for (int i = 0; i < clusteredData.size(); i++) {
 					double err = calcError(clusteredData.get(i));
 					total += err;

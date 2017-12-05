@@ -6,6 +6,7 @@ import java.util.Random;
 public class Cluster {
 	private DataPoint center;
 	private ArrayList<DataPoint> members;
+	private double pheromone;
 	
 	Random rand = new Random();
 	
@@ -85,4 +86,11 @@ public class Cluster {
 		return contains;
 	}
 	
+	public double getPheromone() {
+		return pheromone;
+	}
+	
+	public void setPheromone(double level) {
+		pheromone = level;
+	}
 }

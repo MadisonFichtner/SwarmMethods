@@ -39,13 +39,13 @@ public class Ant {
 		return thisCluster;
 	}
 
-	public double calcPheromone() {
+	public double calcPheromone(Cluster c) {
 		double counter = 0;
 		double total = 0;
 		double ave = 0;
-		for (int i = 0; i < thisCluster.getMembers().size(); i++) {
-			for (int j = 0; j < thisCluster.getMembers().size(); j++) {
-				total += thisCluster.getMembers().get(i).calcDistance(thisCluster.getMembers().get(j));				//calc distance to each point
+		for (int i = 0; i < c.getMembers().size(); i++) {
+			for (int j = 0; j < c.getMembers().size(); j++) {
+				total += c.getMembers().get(i).calcDistance(c.getMembers().get(j));				//calc distance to each point
 				counter++;	
 			}
 		}
@@ -54,12 +54,11 @@ public class Ant {
 		//now give fitness value based on average
 		double normalizedAve = 1 / (1 + Math.exp(-ave));			//normalize the average to be between 0 and 1 with sigmoidal function
 		pheromone = 1 + normalizedAve;								//assign a fitness value based on that average distance
-
+		c.setPheromone(pheromone);
 		return pheromone;
 	}
 	
-	public void evap(double val) {
-		pheromone -= val;
+	public Cluster getCluster() {
+		return thisCluster;
 	}
-
 }
