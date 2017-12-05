@@ -13,7 +13,7 @@ public class Main {
 		ArrayList<DataPoint> data = new ArrayList<DataPoint>();						//create list of samples to use - dataset essentially
 		int numInputs = 0;
 		int numDataPoints = 0;
-		String filename = "haberman.data";
+		String filename = "wine.data";
 		try {
 			Scanner s = new Scanner(new File(filename));							//create a new scanner, checks lines of data in file
 			while (s.hasNextLine()) {												//loop while there is another line
@@ -26,7 +26,7 @@ public class Main {
 					counter++;																//update counter (1 more input)
 					double element = Double.parseDouble(lineScan.next());
 					inputs.add(element);													//parse the token to be a double and add to the input arraylist
-				}																		//update counter to reflect input size (total - 1, since last token is output
+				}
 				counter--;
 				double[] passIn = new double[counter];									//this is the array that will be passed to sample class
 				for (int i = 0; i < counter; i++) {
@@ -69,7 +69,7 @@ public class Main {
 		System.out.println("\t5)Ant Colony Optimization (ACO)");
 
 		int selection = in.nextInt();
-		in.close();
+		//in.close();
 
 		Collections.shuffle(data);													//randomize the data
 
@@ -77,13 +77,24 @@ public class Main {
 		ArrayList<Cluster> clusteredData;
 		switch(selection){
 		case 1:	
-			int k = 5;
+			System.out.println("How many centroids?");
+			int k = in.nextInt();
 			KMeans kmeans = new KMeans(data, k);
 			clusteredData = kmeans.cluster(data);
+			for(int i = 0; i < clusteredData.size(); i++) {
+				System.out.println("Cluster " + (i+1) + "'s average distance between data points: " + calcAverageDistance(clusteredData.get(i)));
+			}
 			break;
 		case 2:	
-			DBScan dbScan = new DBScan();
+			System.out.println("Enter epsilon (max distance between neighbors): ");
+			double epsilon = in.nextDouble();
+			System.out.println("Enter minimum points required to make cluster: ");
+			int minPoints = in.nextInt();
+			DBScan dbScan = new DBScan(data, epsilon, minPoints);
 			clusteredData = dbScan.cluster(data);
+			for(int i = 0; i < clusteredData.size(); i++) {
+				System.out.println("Cluster " + (i+1) + "'s average distance between data points: " + calcAverageDistance(clusteredData.get(i)));
+			}
 			break;
 		case 3:
 			CNN cnn = new CNN(numInputs, numHidLayers, numHidNodes, numOutputs, hiddenActivation, outputActivation);
@@ -119,6 +130,21 @@ public class Main {
 			}
 			break;
 		}
+		in.close();
+	}
+	
+	/*
+	 * returns the average distance from centroid to members of the cluster
+	 */
+	private static double calcAverageDistance(Cluster cluster) {
+		double averageDistance = 0;
+		for(int i = 0; i < cluster.getMembers().size(); i++) {
+			for(int j = 0; j < cluster.getMembers().size(); j++) {
+				averageDistance += cluster.getMembers().get(i).calcDistance(cluster.getMembers().get(j));
+			}
+		}
+		averageDistance = averageDistance / cluster.getMembers().size();
+		return averageDistance;
 	}
 
 	public static double calcError(Cluster c) {
