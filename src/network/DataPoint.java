@@ -18,6 +18,7 @@ public class DataPoint {
 		double distance = 0;
 		for(int i = 0; i < other.getNumFeatures(); i++) {
 			double difference = this.getFeature(i) - other.getFeature(i);
+			//System.out.println(this.getFeature(i) + " " + other.getFeature(i));
 			difference = Math.pow(difference, 2);
 			distance += difference;
 		}

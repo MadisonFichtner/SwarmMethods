@@ -70,16 +70,13 @@ public class Main {
 		Collections.shuffle(data);													//randomize the data
 
 		//cluster the data using chosen algorithm
-		ArrayList<Cluster> clusteredData;
+		ArrayList<Cluster> clusteredData = null;
 		switch(selection){
 		case 1:	
 			System.out.println("How many centroids?");
 			int k = in.nextInt();
 			KMeans kmeans = new KMeans(data, k);
 			clusteredData = kmeans.cluster(data);
-			for(int i = 0; i < clusteredData.size(); i++) {
-				System.out.println("Cluster " + (i+1) + "'s average distance between data points: " + calcAverageDistance(clusteredData.get(i)));
-			}
 			break;
 		case 2:	
 			System.out.println("Enter epsilon (max distance between neighbors): ");
@@ -88,9 +85,6 @@ public class Main {
 			int minPoints = in.nextInt();
 			DBScan dbScan = new DBScan(data, epsilon, minPoints);
 			clusteredData = dbScan.cluster(data);
-			for(int i = 0; i < clusteredData.size(); i++) {
-				System.out.println("Cluster " + (i+1) + "'s average distance between data points: " + calcAverageDistance(clusteredData.get(i)));
-			}
 			break;
 		case 3:
 			CNN cnn = new CNN(numInputs, numHidLayers, numHidNodes, numOutputs, hiddenActivation, outputActivation, data);
@@ -106,19 +100,22 @@ public class Main {
 			break;
 		}
 		in.close();
+		
+		calcAverageDistance(clusteredData);
 	}
 	
 	/*
 	 * returns the average distance from centroid to members of the cluster
 	 */
-	private static double calcAverageDistance(Cluster cluster) {
-		double averageDistance = 0;
-		for(int i = 0; i < cluster.getMembers().size(); i++) {
-			for(int j = 0; j < cluster.getMembers().size(); j++) {
-				averageDistance += cluster.getMembers().get(i).calcDistance(cluster.getMembers().get(j));
+	private static void calcAverageDistance(ArrayList<Cluster> clusteredData) {
+		System.out.println("Distance from Center:");
+		for(Cluster cluster : clusteredData){
+			double clusterDistance = 0;
+			for(int i = 0; i < cluster.getMembers().size(); i++) {
+				clusterDistance += cluster.getMembers().get(i).calcDistance(cluster.getCenter());
 			}
+			clusterDistance = clusterDistance / cluster.getMembers().size();
+			System.out.println("\tCluster " + (clusteredData.indexOf(cluster)+1) + ": " + clusterDistance);
 		}
-		averageDistance = averageDistance / cluster.getMembers().size();
-		return averageDistance;
 	}
 }

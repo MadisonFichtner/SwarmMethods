@@ -148,7 +148,12 @@ public class CNN{
 			System.out.println("Size of Cluster " + (clusters.indexOf(c)+1) +  ": " + c.getMembers().size());
 		}
 		
-		return clusters;
+		ArrayList<Cluster> updatedClusters = new ArrayList<>();
+		for(Cluster c : clusters){
+			Cluster newCluster = c.updateCenter(data.get(0).getNumFeatures(), data);
+			updatedClusters.add(newCluster);
+		}
+		return updatedClusters;
 	}
 
 	//Randomly reset weights in network
