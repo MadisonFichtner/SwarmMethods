@@ -18,6 +18,7 @@ public class DataPoint {
 		double distance = 0;
 		for(int i = 0; i < other.getNumFeatures(); i++) {
 			double difference = this.getFeature(i) - other.getFeature(i);
+			//System.out.println(this.getFeature(i) + " " + other.getFeature(i));
 			difference = Math.pow(difference, 2);
 			distance += difference;
 		}
@@ -46,5 +47,17 @@ public class DataPoint {
 	
 	public int getNumFeatures(){
 		return features.length;
+	}
+	
+	public void normalize() {
+		double length = 0;
+		for(double feature : features) {
+			length += feature*feature;
+		}
+		length = Math.sqrt(length);
+		
+		for(int i = 0; i < features.length; i++) {
+			features[i] /= length;
+		}
 	}
 }

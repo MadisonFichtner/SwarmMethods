@@ -14,7 +14,7 @@ public class Main {
 		ArrayList<DataPoint> data = new ArrayList<DataPoint>();						//create list of samples to use - dataset essentially
 		int numInputs = 0;
 		int numDataPoints = 0;
-		String filename = "wine.data";
+		String filename = "car.txt";
 		try {
 			Scanner s = new Scanner(new File(filename));							//create a new scanner, checks lines of data in file
 			while (s.hasNextLine()) {												//loop while there is another line
@@ -28,7 +28,7 @@ public class Main {
 					double element = Double.parseDouble(lineScan.next());
 					inputs.add(element);													//parse the token to be a double and add to the input arraylist
 				}																		//update counter to reflect input size (total - 1, since last token is output
-				counter--;	//commented out to allow all 4 values of datapoint to be passed through
+				counter--;	
 				double[] passIn = new double[counter];									//this is the array that will be passed to sample class
 				for (int i = 0; i < counter; i++) {
 					passIn[i] = inputs.get(i);											//initialize the input array
@@ -46,20 +46,15 @@ public class Main {
 		}
 		catch (Exception e) {
 			System.out.println("File not found.");
-		}
-		
-		for(DataPoint d : data){
-			for(double input : d.getFeatures()){
-				System.out.print(input + " ");
-			}
-			System.out.println();
+			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 
-		int numHidLayers = 2;															//specify network configurations - here is where we will tune the CNN
-		int numHidNodes = 20;
-		int numOutputs = 1;
-		int hiddenActivation = 2; 			//sigmoidal
-		int outputActivation = 1; 			//linear for function approximation
+		int numHidLayers = 0;															//specify network configurations - here is where we will tune the CNN
+		int numHidNodes = 0;
+		int numOutputs = 5;					//number of possible clusters
+		int hiddenActivation = 1;			//doesn't matter 			
+		int outputActivation = 2; 			//cnn activation
 
 		Scanner in = new Scanner(System.in);											//grab user input for the algorithm to use
 		System.out.println("What algorithm do you want to use?");
@@ -75,16 +70,13 @@ public class Main {
 		Collections.shuffle(data);													//randomize the data
 
 		//cluster the data using chosen algorithm
-		ArrayList<Cluster> clusteredData;
+		ArrayList<Cluster> clusteredData = null;
 		switch(selection){
 		case 1:	
 			System.out.println("How many centroids?");
 			int k = in.nextInt();
 			KMeans kmeans = new KMeans(data, k);
 			clusteredData = kmeans.cluster(data);
-			for(int i = 0; i < clusteredData.size(); i++) {
-				System.out.println("Cluster " + (i+1) + "'s average distance between data points: " + calcAverageDistance(clusteredData.get(i)));
-			}
 			break;
 		case 2:	
 			System.out.println("Enter epsilon (max distance between neighbors): ");
@@ -93,12 +85,9 @@ public class Main {
 			int minPoints = in.nextInt();
 			DBScan dbScan = new DBScan(data, epsilon, minPoints);
 			clusteredData = dbScan.cluster(data);
-			for(int i = 0; i < clusteredData.size(); i++) {
-				System.out.println("Cluster " + (i+1) + "'s average distance between data points: " + calcAverageDistance(clusteredData.get(i)));
-			}
 			break;
 		case 3:
-			CNN cnn = new CNN(numInputs, numHidLayers, numHidNodes, numOutputs, hiddenActivation, outputActivation);
+			CNN cnn = new CNN(numInputs, numHidLayers, numHidNodes, numOutputs, hiddenActivation, outputActivation, data);
 			clusteredData = cnn.cluster(data);
 			break;
 		case 4:		
@@ -111,19 +100,22 @@ public class Main {
 			break;
 		}
 		in.close();
+		
+		calcAverageDistance(clusteredData);
 	}
 	
 	/*
 	 * returns the average distance from centroid to members of the cluster
 	 */
-	private static double calcAverageDistance(Cluster cluster) {
-		double averageDistance = 0;
-		for(int i = 0; i < cluster.getMembers().size(); i++) {
-			for(int j = 0; j < cluster.getMembers().size(); j++) {
-				averageDistance += cluster.getMembers().get(i).calcDistance(cluster.getMembers().get(j));
+	private static void calcAverageDistance(ArrayList<Cluster> clusteredData) {
+		System.out.println("Distance from Center:");
+		for(Cluster cluster : clusteredData){
+			double clusterDistance = 0;
+			for(int i = 0; i < cluster.getMembers().size(); i++) {
+				clusterDistance += cluster.getMembers().get(i).calcDistance(cluster.getCenter());
 			}
+			clusterDistance = clusterDistance / cluster.getMembers().size();
+			System.out.println("\tCluster " + (clusteredData.indexOf(cluster)+1) + ": " + clusterDistance);
 		}
-		averageDistance = averageDistance / cluster.getMembers().size();
-		return averageDistance;
 	}
 }
