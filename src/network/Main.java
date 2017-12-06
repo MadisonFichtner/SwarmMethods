@@ -13,7 +13,7 @@ public class Main {
 		ArrayList<DataPoint> data = new ArrayList<DataPoint>();						//create list of samples to use - dataset essentially
 		int numInputs = 0;
 		int numDataPoints = 0;
-		String filename = "wine.data";
+		String filename = "haberman.data";
 		try {
 			Scanner s = new Scanner(new File(filename));							//create a new scanner, checks lines of data in file
 			while (s.hasNextLine()) {												//loop while there is another line
@@ -116,7 +116,7 @@ public class Main {
 			}
 			break;
 		case 5:
-			ACO aco = new ACO(data, 5);
+			ACO aco = new ACO(data, 20);
 			total = 0;
 			for (int t = 0; t < 50; t++) {
 				clusteredData = aco.cluster();

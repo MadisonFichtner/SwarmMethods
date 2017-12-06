@@ -1,10 +1,11 @@
 package network;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 public class ACO {
-	private int numAnts = 10;
+	private int numAnts = 20;
 	private ArrayList<Ant> ants;
 	private ArrayList<Cluster> clusters;
 	private double evapFactor = 0.1;
@@ -24,14 +25,14 @@ public class ACO {
 		ants = new ArrayList<Ant>();
 		ArrayList<Cluster> bestClusters = new ArrayList<Cluster>();
 		for (int i = 0; i < numAnts; i++) {					//initialize ants with starting position of first cluster created
-			Ant a = new Ant(clusters.get(0));
+			int start = (int)Math.random() * clusters.size();
+			Ant a = new Ant(clusters.get(start));
 			ants.add(a);
 		}
 		for (Ant a : ants) {			 					//for each ant, set cluster to move based on the pheromone
 			for (Cluster c : clusters) {
 				if (a.getCluster().getPheromone() < c.getPheromone()) {
 					a.setCluster(c);
-					break;
 				}
 			}
 		}
