@@ -1,58 +1,58 @@
 package network;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 
 public class ACO {
 	private int numAnts = 20;
 	private ArrayList<Ant> ants;
 	private ArrayList<Cluster> clusters;
-	private double evapFactor = 0.1;
+	private double evapFactor = 0.2;
 
 	public ACO(ArrayList<DataPoint> data, int numClusters) {
 		clusters = new ArrayList<Cluster>();
 		for (int i = 0; i < numClusters; i++) {				//create the clusters/"paths"
-			clusters.add(createCluster(data));
-		}
-		for (Cluster c : clusters) {
-			double level = Math.random();					//pheromones on clusters initialized to small random numbers between 0 and 1
-			c.setPheromone(level);
+			Cluster c = createCluster(data);
+			double level = Math.random();
+			c.setPheromone(level);							//initialize pheromone level to small random number 
+			clusters.add(c);
 		}
 	}
-	
+
 	public ArrayList<Cluster> cluster() {
 		ants = new ArrayList<Ant>();
 		ArrayList<Cluster> bestClusters = new ArrayList<Cluster>();
-		for (int i = 0; i < numAnts; i++) {					//initialize ants with starting position of first cluster created
+		for (int i = 0; i < numAnts; i++) {					//initialize ants with random starting position
 			int start = (int)Math.random() * clusters.size();
 			Ant a = new Ant(clusters.get(start));
 			ants.add(a);
 		}
 		for (Ant a : ants) {			 					//for each ant, set cluster to move based on the pheromone
+			double prob = 0;
+			Cluster to = a.getCluster();
 			for (Cluster c : clusters) {
-				if (a.getCluster().getPheromone() < c.getPheromone()) {
-					a.setCluster(c);
+				if (probMove(c) > prob) { 					//higher pheromone = higher probability to move to it
+					prob = probMove(c);
+					to = c;
 				}
 			}
+			a.setCluster(to);
 		}
 		for (Cluster c : clusters) {									//for every path
 			double level = (c.getPheromone() * (1 - evapFactor));		//evaporate pheromone level --> pher = (1 - evapFactor) * pher
 			c.setPheromone(level);
 		}
 		for (Ant a : ants) {								//for each ant
-			for (Cluster c : clusters) { 					//for each path
-				a.calcPheromone(c); 						//deposit pheromone based on fitness of cluster and update pheromone level
-			}
+			a.calcPheromone(a.getCluster()); 				//deposit pheromone based on fitness of cluster and update pheromone level
 		}
 		for (Ant a : ants) {
 			bestClusters.add(a.getCluster());
 		}
 		return bestClusters;									//return the best clustering list
 	}
-	
+
 	//creates the cluster associated with ant "paths"
-	public Cluster createCluster(ArrayList<DataPoint> data) {
+	private Cluster createCluster(ArrayList<DataPoint> data) {
 		double clusterRad = 1 + (Math.random() * 50);
 		ArrayList<DataPoint> points = new ArrayList<DataPoint>();
 		DataPoint closest = null;
@@ -73,5 +73,11 @@ public class ACO {
 			points.add(closest);
 		}
 		return new Cluster(center, points);														//create a new cluster and return it
+	}
+
+	private double probMove(Cluster c) {
+		double pheromone = c.getPheromone();
+		double move = Math.random();
+		return move * pheromone;
 	}
 }

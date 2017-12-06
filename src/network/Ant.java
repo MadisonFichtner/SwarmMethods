@@ -1,7 +1,5 @@
 package network;
 
-import java.util.ArrayList;
-import java.util.Random;
 
 public class Ant {
 	private Cluster thisCluster;
@@ -27,7 +25,6 @@ public class Ant {
 		//now give fitness value based on average
 		double normalizedAve = 1 / (1 + Math.exp(-ave));			//normalize the average to be between 0 and 1 with sigmoidal function
 		pheromone = 1 + normalizedAve;								//assign a fitness value based on that average distance
-		c.setPheromone(pheromone);
 		return pheromone;
 	}
 	
