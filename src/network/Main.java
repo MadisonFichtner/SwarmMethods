@@ -116,10 +116,10 @@ public class Main {
 			}
 			break;
 		case 5:
-			ACO aco = new ACO();
+			ACO aco = new ACO(data, 5);
 			total = 0;
-			for (int t = 0; t < 500; t++) {
-				clusteredData = aco.cluster(data, 5);
+			for (int t = 0; t < 50; t++) {
+				clusteredData = aco.cluster();
 				for (int i = 0; i < clusteredData.size(); i++) {
 					double err = calcError(clusteredData.get(i));
 					total += err;

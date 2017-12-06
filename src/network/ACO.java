@@ -1,51 +1,76 @@
 package network;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class ACO {
-	private int numAnts = 1;
-	private ArrayList<Ant> ants = new ArrayList<Ant>();
+	private int numAnts = 10;
+	private ArrayList<Ant> ants;
+	private ArrayList<Cluster> clusters;
 	private double evapFactor = 0.1;
 
-	public ArrayList<Cluster> cluster(ArrayList<DataPoint> data, int numClusters) {
-		ArrayList<Cluster> clusters = new ArrayList<Cluster>();
+	public ACO(ArrayList<DataPoint> data, int numClusters) {
+		clusters = new ArrayList<Cluster>();
+		for (int i = 0; i < numClusters; i++) {				//create the clusters/"paths"
+			clusters.add(createCluster(data));
+		}
+		for (Cluster c : clusters) {
+			double level = Math.random();					//pheromones on clusters initialized to small random numbers between 0 and 1
+			c.setPheromone(level);
+		}
+	}
+	
+	public ArrayList<Cluster> cluster() {
+		ants = new ArrayList<Ant>();
 		ArrayList<Cluster> bestClusters = new ArrayList<Cluster>();
-		for (int t = 0; t < 500; t++) {
-			for (int i = 0; i < numAnts; i++) {					//initialize ants with starting position, and pheromones to small random numbers
-				Ant a = new Ant(data);
-				ants.add(a);
-				clusters.add(a.getCluster());
-			}
+		for (int i = 0; i < numAnts; i++) {					//initialize ants with starting position of first cluster created
+			Ant a = new Ant(clusters.get(0));
+			ants.add(a);
+		}
+		for (Ant a : ants) {			 					//for each ant, set cluster to move based on the pheromone
 			for (Cluster c : clusters) {
-				double level = Math.random();					//pheromones initialized to small random numbers between 0 and 1
-				c.setPheromone(level);
-			}
-			for (Ant a : ants) {			 					//for each ant
-				a.cluster(data);
-			}
-			for (Cluster c : clusters) {						//for every path
-				double level = (c.getPheromone() * (1 - evapFactor));		//evaporate pheromone level --> pher = (1 - evapFactor) * pher
-				c.setPheromone(level);
-			}
-			for (Ant a : ants) {								//for each ant
-				for (Cluster c : clusters) { 					//for each path
-					a.calcPheromone(c); 						//deposit pheromone based on fitness of cluster and update pheromone level
+				if (a.getCluster().getPheromone() < c.getPheromone()) {
+					a.setCluster(c);
+					break;
 				}
 			}
 		}
-		//find best numClusters clusters, add to best clusters
-		for (int i = 0; i < clusters.size(); i++) {
-			for (int j = 0; j < clusters.size() - 1; j++) {
-				if (clusters.get(j).getPheromone() < clusters.get(j + 1).getPheromone()) {
-					Cluster temp = clusters.get(j);
-					clusters.add(j, clusters.get(j + 1));
-					clusters.add(j + 1, temp);
-				}
+		for (Cluster c : clusters) {									//for every path
+			double level = (c.getPheromone() * (1 - evapFactor));		//evaporate pheromone level --> pher = (1 - evapFactor) * pher
+			c.setPheromone(level);
+		}
+		for (Ant a : ants) {								//for each ant
+			for (Cluster c : clusters) { 					//for each path
+				a.calcPheromone(c); 						//deposit pheromone based on fitness of cluster and update pheromone level
 			}
 		}
-		for (int i = 0; i < numClusters; i++) {
-			bestClusters.add(clusters.get(i));
+		for (Ant a : ants) {
+			bestClusters.add(a.getCluster());
 		}
 		return bestClusters;									//return the best clustering list
+	}
+	
+	//creates the cluster associated with ant "paths"
+	public Cluster createCluster(ArrayList<DataPoint> data) {
+		double clusterRad = 1 + (Math.random() * 50);
+		ArrayList<DataPoint> points = new ArrayList<DataPoint>();
+		DataPoint closest = null;
+		double close = 100000;
+		Random rand = new Random();
+		DataPoint center = new DataPoint(data.get(rand.nextInt(data.size())).getFeatures());	//set center to random point in data
+		for (int i = 0; i < data.size(); i++) {													//loop through data
+			double dist = center.calcDistance(data.get(i));										//calculate distance from center to each point in the list
+			if (dist < close) {
+				close = dist;
+				closest = data.get(i);
+			}
+			if (dist <= clusterRad) {															//if the point is within the cluster radius
+				points.add(data.get(i));														//then add it to the cluster
+			}
+		}
+		if (points.isEmpty()) {
+			points.add(closest);
+		}
+		return new Cluster(center, points);														//create a new cluster and return it
 	}
 }
