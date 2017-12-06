@@ -109,13 +109,18 @@ public class Main {
 	 */
 	private static void calcAverageDistance(ArrayList<Cluster> clusteredData) {
 		System.out.println("Distance from Center:");
+		double averageDistance = 0;
 		for(Cluster cluster : clusteredData){
 			double clusterDistance = 0;
 			for(int i = 0; i < cluster.getMembers().size(); i++) {
 				clusterDistance += cluster.getMembers().get(i).calcDistance(cluster.getCenter());
 			}
-			clusterDistance = clusterDistance / cluster.getMembers().size();
+			clusterDistance /= cluster.getMembers().size();
+			averageDistance += clusterDistance;
 			System.out.println("\tCluster " + (clusteredData.indexOf(cluster)+1) + ": " + clusterDistance);
+			System.out.println("\t  Size: " + cluster.getMembers().size());
 		}
+		averageDistance /= clusteredData.size();
+		System.out.println("Average: " + averageDistance);
 	}
 }
