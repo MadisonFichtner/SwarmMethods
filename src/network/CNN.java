@@ -39,13 +39,7 @@ public class CNN{
 		//create output layer with outputs number of nodes and given activation function
 		layers.add(new Layer(numOutputs, actFunOutput));
 		
-		/*for(int i = 0; i < layers.get(1).size(); i++){
-			DataPoint point = data.get(random.nextInt(data.size()));
-			for(int j = 0; j < layers.get(0).size(); j++){
-				layers.get(0).getNeuron(j).addWeight(point.getFeature(j));
-			}
-		}*/
-		
+		//add random weights between layers
 		for(int i = 0; i < layers.get(0).size(); i++){
 			for(int j = 0; j < layers.get(1).size(); j++){
 				layers.get(0).getNeuron(i).addWeight(random.nextDouble());
@@ -108,8 +102,7 @@ public class CNN{
 			for(double feature : point.getFeatures())
 				pointData += String.format("%.2f", feature) + " ";
 			System.out.println(pointData + ": cluster " + (winner+1));*/
-			
-			
+						
 			updateWeights(winner);
 			
 			changeResetCounter++;
