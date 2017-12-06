@@ -26,10 +26,18 @@ public class Cluster {
 	public Cluster(int numFeatures) {
 		double[] dataPoints = new double[numFeatures];
 		this.center = new DataPoint(dataPoints);
+		this.members = new ArrayList<>();
 	}
 	
 	public Cluster(DataPoint center, ArrayList<DataPoint> members) {
 		this.center = center;
+		this.members = members;
+	}
+	
+	public Cluster(ArrayList<DataPoint> members) {
+		int numFeatures = members.get(0).getFeatures().length;
+		double[] dataPoints = new double [numFeatures];
+		this.center = new DataPoint(dataPoints);
 		this.members = members;
 	}
 	
@@ -42,16 +50,23 @@ public class Cluster {
 	}
 
 	//Logic to update center based on the current members using the geometric mean of each feature
-	public Cluster updateCenter(int numFeatures) {
+	public Cluster updateCenter(int numFeatures, ArrayList<DataPoint> data) {
 		double[] newFeatures = new double[numFeatures];
 		ArrayList<DataPoint> pointsInCluster = members;
 		for(int k = 0; k < numFeatures; k++) {
-			double mean = pointsInCluster.get(0).getFeature(k);													//Starting at 1 because 
-			for(int j = 1; j < pointsInCluster.size(); j++) {
-				mean += pointsInCluster.get(j).getFeature(k);			//Geometric mean
+			double mean = 0;												//Starting at 1 because 
+			for(int j = 0; j < pointsInCluster.size(); j++) {					
+				mean = mean + pointsInCluster.get(j).getFeature(k);
+				//mean = (mean) * pointsInCluster.get(j).getFeature(k);			//Geometric mean
 			}
-			mean /= numFeatures;							//takes the numFeatures root of the mean
+			mean = mean / numFeatures;
+			//mean = Math.pow(mean, 1.0 / pointsInCluster.size());							//takes the numFeatures root of the mean
 			newFeatures[k] = mean;
+		}
+		if(members.size() == 0) {
+			DataPoint newCenter = new DataPoint(data.get(rand.nextInt(data.size())).getFeatures());	//set center to random point in data
+			Cluster newCluster = new Cluster(newCenter, members);
+			return newCluster;
 		}
 		DataPoint newCenter = new DataPoint(newFeatures);
 		Cluster newCluster = new Cluster(newCenter, members);
@@ -65,4 +80,14 @@ public class Cluster {
 	public ArrayList<DataPoint> getMembers() {
 		return members;
 	}
+	
+	public boolean hasMember(DataPoint member) {
+		boolean contains = false;
+		if(members.contains(member))
+			contains = true;
+		else if(members.contains(member) != true)
+			contains = false;
+		return contains;
+	}
+	
 }

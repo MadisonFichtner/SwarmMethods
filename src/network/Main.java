@@ -65,7 +65,7 @@ public class Main {
 		System.out.println("\t5)Ant Colony Optimization (ACO)");
 
 		int selection = in.nextInt();
-		in.close();
+		//in.close();
 
 		Collections.shuffle(data);													//randomize the data
 
@@ -73,13 +73,24 @@ public class Main {
 		ArrayList<Cluster> clusteredData;
 		switch(selection){
 		case 1:	
-			int k = 5;
+			System.out.println("How many centroids?");
+			int k = in.nextInt();
 			KMeans kmeans = new KMeans(data, k);
 			clusteredData = kmeans.cluster(data);
+			for(int i = 0; i < clusteredData.size(); i++) {
+				System.out.println("Cluster " + (i+1) + "'s average distance between data points: " + calcAverageDistance(clusteredData.get(i)));
+			}
 			break;
 		case 2:	
-			DBScan dbScan = new DBScan();
+			System.out.println("Enter epsilon (max distance between neighbors): ");
+			double epsilon = in.nextDouble();
+			System.out.println("Enter minimum points required to make cluster: ");
+			int minPoints = in.nextInt();
+			DBScan dbScan = new DBScan(data, epsilon, minPoints);
 			clusteredData = dbScan.cluster(data);
+			for(int i = 0; i < clusteredData.size(); i++) {
+				System.out.println("Cluster " + (i+1) + "'s average distance between data points: " + calcAverageDistance(clusteredData.get(i)));
+			}
 			break;
 		case 3:
 			CNN cnn = new CNN(numInputs, numHidLayers, numHidNodes, numOutputs, hiddenActivation, outputActivation, data);
@@ -94,5 +105,20 @@ public class Main {
 			clusteredData = aco.cluster(data);
 			break;
 		}
+		in.close();
+	}
+	
+	/*
+	 * returns the average distance from centroid to members of the cluster
+	 */
+	private static double calcAverageDistance(Cluster cluster) {
+		double averageDistance = 0;
+		for(int i = 0; i < cluster.getMembers().size(); i++) {
+			for(int j = 0; j < cluster.getMembers().size(); j++) {
+				averageDistance += cluster.getMembers().get(i).calcDistance(cluster.getMembers().get(j));
+			}
+		}
+		averageDistance = averageDistance / cluster.getMembers().size();
+		return averageDistance;
 	}
 }
