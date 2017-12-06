@@ -14,6 +14,11 @@ public class Cluster {
 	//Center variable that will be randomly generated and updated with the algorithm
 	//Center will have same number of attributes as the DataPoint members
 	
+	public Cluster(){
+		center = null;
+		members = new ArrayList<DataPoint>();
+	}
+	
 	public Cluster(int numFeatures, ArrayList<DataPoint> data) {
 		center = new DataPoint(data.get(rand.nextInt(data.size())).getFeatures());	//set center to random point in data
 		this.members = new ArrayList<DataPoint>();
@@ -41,8 +46,8 @@ public class Cluster {
 		members.add(point);
 	}
 	
-	public void removePoint(DataPoint point) {
-		members.remove(point);
+	public boolean removePoint(DataPoint point) {
+		return members.remove(point);
 	}
 
 	//Logic to update center based on the current members using the geometric mean of each feature
