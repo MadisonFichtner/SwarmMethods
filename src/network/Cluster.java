@@ -33,6 +33,9 @@ public class Cluster {
 	public Cluster(DataPoint center, ArrayList<DataPoint> members) {
 		this.center = center;
 		this.members = members;
+		for (DataPoint d : members) {
+			d.setLabel(this);
+		}
 	}
 	
 	public Cluster(ArrayList<DataPoint> members) {

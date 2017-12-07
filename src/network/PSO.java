@@ -8,6 +8,9 @@ public class PSO {
 	private Particle gBest;
 
 	public ArrayList<Cluster> cluster(ArrayList<DataPoint> data) {
+		for (DataPoint d : data) {
+			d.setLabel(null);
+		}
 		for (int i = 0; i < particleNum; i++) {									//for each particle
 			particles.add(new Particle(data));									//initialize a new particle
 		}

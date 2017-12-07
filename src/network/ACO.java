@@ -60,7 +60,7 @@ public class ACO {
 				close = dist;
 				closest = data.get(i);
 			}
-			if (dist <= clusterRad) {															//if the point is within the cluster radius
+			if (dist <= clusterRad && data.get(i).getLabel() == null) {							//if the point is within the cluster radius and is not already clustered
 				points.add(data.get(i));														//then add it to the cluster
 			}
 		}
