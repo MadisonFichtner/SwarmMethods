@@ -2,7 +2,6 @@ package network;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Scanner;
 
 /*	Main class drives the creation and training of networks for Project 4. It reads in data files (which we manually have to specify) and then
@@ -14,7 +13,7 @@ public class Main {
 		ArrayList<DataPoint> data = new ArrayList<DataPoint>();						//create list of samples to use - dataset essentially
 		int numInputs = 0;
 		int numDataPoints = 0;
-		String filename = "car.txt";
+		String filename = "road.data";
 		try {
 			Scanner s = new Scanner(new File(filename));							//create a new scanner, checks lines of data in file
 			while (s.hasNextLine()) {												//loop while there is another line
@@ -28,7 +27,7 @@ public class Main {
 					double element = Double.parseDouble(lineScan.next());
 					inputs.add(element);													//parse the token to be a double and add to the input arraylist
 				}																		//update counter to reflect input size (total - 1, since last token is output
-				counter--;	
+				counter--;
 				double[] passIn = new double[counter];									//this is the array that will be passed to sample class
 				for (int i = 0; i < counter; i++) {
 					passIn[i] = inputs.get(i);											//initialize the input array
@@ -46,81 +45,117 @@ public class Main {
 		}
 		catch (Exception e) {
 			System.out.println("File not found.");
-			e.printStackTrace();
-			System.out.println(e.getMessage());
+			for(DataPoint d : data){
+				for(double input : d.getFeatures()){
+					System.out.print(input + " ");
+				}
+				System.out.println();
+				e.printStackTrace();
+				System.out.println(e.getMessage());
+			}
+		}
+			int numHidLayers = 0;															//specify network configurations - here is where we will tune the CNN
+			int numHidNodes = 0;
+			int numOutputs = 5;					//number of possible clusters
+			int hiddenActivation = 1;			//doesn't matter 			
+			int outputActivation = 2; 			//cnn activation
+
+			Scanner in = new Scanner(System.in);											//grab user input for the algorithm to use
+			System.out.println("What algorithm do you want to use?");
+			System.out.println("\t1)K-Means Clustering"); 
+			System.out.println("\t2)DB-Scan");
+			System.out.println("\t3)Competitive Learning Network");
+			System.out.println("\t4)Particle Swarm Optimization (PSO)");
+			System.out.println("\t5)Ant Colony Optimization (ACO)");
+
+			int selection = in.nextInt();
+			//in.close();
+
+			Collections.shuffle(data);													//randomize the data
+
+			//cluster the data using chosen algorithm
+			ArrayList<Cluster> clusteredData = null;
+			switch(selection){
+			case 1:	
+				System.out.println("How many centroids?");
+				int k = in.nextInt();
+				KMeans kmeans = new KMeans(data, k);
+				clusteredData = kmeans.cluster(data);
+				break;
+			case 2:	
+				System.out.println("Enter epsilon (max distance between neighbors): ");
+				double epsilon = in.nextDouble();
+				System.out.println("Enter minimum points required to make cluster: ");
+				int minPoints = in.nextInt();
+				DBScan dbScan = new DBScan(data, epsilon, minPoints);
+				clusteredData = dbScan.cluster(data);
+				break;
+			case 3:
+				CNN cnn = new CNN(numInputs, numHidLayers, numHidNodes, numOutputs, hiddenActivation, outputActivation, data);
+				clusteredData = cnn.cluster(data);
+				break;
+			case 4:		
+				PSO pso = new PSO();
+				double total = 0;
+				System.out.println("Average distance between points in the clusters is:");
+				for (int t = 0; t < 200; t++) {
+					clusteredData = pso.cluster(data);
+					for (int i = 0; i < clusteredData.size(); i++) {
+						double err = calcError(clusteredData, clusteredData.get(i));
+						total += err;
+					}
+					double ave = total / clusteredData.size();
+					System.out.println(ave);
+					total = 0;
+				}
+				break;
+			case 5:
+				ACO aco = new ACO(data, 20);
+				total = 0;
+				for (int t = 0; t < 200; t++) {
+					clusteredData = aco.cluster();
+					for (int i = 0; i < clusteredData.size(); i++) {
+						double err = calcError(clusteredData, clusteredData.get(i));
+						total += err;
+					}
+					double ave = total / clusteredData.size();
+					System.out.println(ave);
+					total = 0;
+				}
+				break;
+			}
+			in.close();
 		}
 
-		int numHidLayers = 0;															//specify network configurations - here is where we will tune the CNN
-		int numHidNodes = 0;
-		int numOutputs = 5;					//number of possible clusters
-		int hiddenActivation = 1;			//doesn't matter 			
-		int outputActivation = 2; 			//cnn activation
-
-		Scanner in = new Scanner(System.in);											//grab user input for the algorithm to use
-		System.out.println("What algorithm do you want to use?");
-		System.out.println("\t1)K-Means Clustering"); 
-		System.out.println("\t2)DB-Scan");
-		System.out.println("\t3)Competitive Learning Network");
-		System.out.println("\t4)Particle Swarm Optimization (PSO)");
-		System.out.println("\t5)Ant Colony Optimization (ACO)");
-
-		int selection = in.nextInt();
-		//in.close();
-
-		Collections.shuffle(data);													//randomize the data
-
-		//cluster the data using chosen algorithm
-		ArrayList<Cluster> clusteredData = null;
-		switch(selection){
-		case 1:	
-			System.out.println("How many centroids?");
-			int k = in.nextInt();
-			KMeans kmeans = new KMeans(data, k);
-			clusteredData = kmeans.cluster(data);
-			break;
-		case 2:	
-			System.out.println("Enter epsilon (max distance between neighbors): ");
-			double epsilon = in.nextDouble();
-			System.out.println("Enter minimum points required to make cluster: ");
-			int minPoints = in.nextInt();
-			DBScan dbScan = new DBScan(data, epsilon, minPoints);
-			clusteredData = dbScan.cluster(data);
-			break;
-		case 3:
-			CNN cnn = new CNN(numInputs, numHidLayers, numHidNodes, numOutputs, hiddenActivation, outputActivation, data);
-			clusteredData = cnn.cluster(data);
-			break;
-		case 4:		
-			PSO pso = new PSO();
-			clusteredData = pso.cluster(data);
-			break;
-		case 5:
-			ACO aco = new ACO();
-			clusteredData = aco.cluster(data);
-			break;
+	public static double calcError(ArrayList<Cluster> clusters, Cluster c) {
+		double counter = 1;
+		double total = 0;
+		double ave = 0;
+		for (int i = 0; i < c.getMembers().size(); i++) {
+			for (int j = 0; j < c.getMembers().size(); j++) {
+				total += c.getMembers().get(i).calcDistance(c.getMembers().get(j));				//calc distance to each point
+				counter++;	
+			}
 		}
-		in.close();
-		
-		calcAverageDistance(clusteredData);
-	}
-	
-	/*
-	 * returns the average distance from centroid to members of the cluster
-	 */
-	private static void calcAverageDistance(ArrayList<Cluster> clusteredData) {
-		System.out.println("Distance from Center:");
-		double averageDistance = 0;
-		for(Cluster cluster : clusteredData){
+		for(Cluster cluster : clusters){														//calc distance from each point to center
 			double clusterDistance = 0;
 			for(int i = 0; i < cluster.getMembers().size(); i++) {
 				clusterDistance += cluster.getMembers().get(i).calcDistance(cluster.getCenter());
 			}
-			clusterDistance /= cluster.getMembers().size();
-			averageDistance += clusterDistance;
-			System.out.println("\tCluster " + (clusteredData.indexOf(cluster)+1) + ": " + clusterDistance);
-			System.out.println("\t  Size: " + cluster.getMembers().size());
+			clusterDistance = clusterDistance / cluster.getMembers().size();
+			total += clusterDistance;
+			counter++;
 		}
-		averageDistance /= clusteredData.size();
-		System.out.println("Average: " + averageDistance);
+		for (Cluster d : clusters) {															//this block penalizes clusters if they are very close together
+			for (Cluster e : clusters) {
+				double distance = d.getCenter().calcDistance(e.getCenter());
+				if (distance < 20) {
+					total += distance;
+					counter++;
+				}
+			}
+		}
+		ave = total / counter;										//then calculate the average distance between points
+		return ave;
 	}
 }

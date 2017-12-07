@@ -6,6 +6,7 @@ import java.util.Random;
 public class Cluster {
 	private DataPoint center;
 	private ArrayList<DataPoint> members;
+	private double pheromone;
 	
 	Random rand = new Random();
 	
@@ -32,6 +33,9 @@ public class Cluster {
 	public Cluster(DataPoint center, ArrayList<DataPoint> members) {
 		this.center = center;
 		this.members = members;
+		for (DataPoint d : members) {
+			d.setLabel(this);
+		}
 	}
 	
 	public Cluster(ArrayList<DataPoint> members) {
@@ -49,8 +53,7 @@ public class Cluster {
 		return members.remove(point);
 	}
 
-	//Logic to update center based on the current members using the mean of each feature
-	//updates this cluster's center and returns a new cluster
+	//Logic to update center based on the current members using the geometric mean of each feature
 	public Cluster updateCenter(int numFeatures, ArrayList<DataPoint> data) {
 		double[] newFeatures = new double[numFeatures];
 		ArrayList<DataPoint> pointsInCluster = members;
@@ -60,7 +63,7 @@ public class Cluster {
 				mean = mean + pointsInCluster.get(j).getFeature(k);
 				//mean = (mean) * pointsInCluster.get(j).getFeature(k);			//Geometric mean
 			}
-			mean = mean / pointsInCluster.size();
+			mean = mean / numFeatures;
 			//mean = Math.pow(mean, 1.0 / pointsInCluster.size());							//takes the numFeatures root of the mean
 			newFeatures[k] = mean;
 		}
@@ -69,7 +72,6 @@ public class Cluster {
 			Cluster newCluster = new Cluster(newCenter, members);
 			return newCluster;
 		}
-		center = new DataPoint(newFeatures);
 		DataPoint newCenter = new DataPoint(newFeatures);
 		Cluster newCluster = new Cluster(newCenter, members);
 		return newCluster;
@@ -92,4 +94,11 @@ public class Cluster {
 		return contains;
 	}
 	
+	public double getPheromone() {
+		return pheromone;
+	}
+	
+	public void setPheromone(double level) {
+		pheromone = level;
+	}
 }
