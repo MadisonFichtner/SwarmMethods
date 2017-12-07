@@ -113,6 +113,7 @@ public class Main {
 				break;
 			}
 			in.close();
+			System.out.println(calcError(clusteredData));
 		}
 
 	public static double calcError(ArrayList<Cluster> clusters) {

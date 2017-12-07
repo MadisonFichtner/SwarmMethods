@@ -145,6 +145,7 @@ public class CNN{
 				point.unNormalize();
 			}
 			c.updateCenter(numInputs, data);
+			System.out.println(c.getCenter());
 		}
 		return clusters;
 	}

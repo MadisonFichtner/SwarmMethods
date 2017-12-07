@@ -72,6 +72,7 @@ public class Cluster {
 			Cluster newCluster = new Cluster(newCenter, members);
 			return newCluster;
 		}
+		center = new DataPoint(newFeatures);
 		DataPoint newCenter = new DataPoint(newFeatures);
 		Cluster newCluster = new Cluster(newCenter, members);
 		return newCluster;
