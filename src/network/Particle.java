@@ -49,7 +49,7 @@ public class Particle {
 	}
 	
 	//calculates the fitness of this particle based on average distance between data points in the cluster
-	public double calcFitness() {
+	public double calcFitness(ArrayList<Cluster> clusters) {
 		double counter = 1;
 		double total = 0;
 		double ave = 0;
@@ -57,6 +57,14 @@ public class Particle {
 			for (int j = 0; j < thisCluster.getMembers().size(); j++) {
 				total += thisCluster.getMembers().get(i).calcDistance(thisCluster.getMembers().get(j));				//calc distance to each point
 				counter++;	
+			}
+		}
+		for (Cluster d : clusters) {															//this block penalizes clusters if they are very close together
+			for (Cluster e : clusters) {
+				double distance = d.getCenter().calcDistance(e.getCenter());
+				if (distance < 20) {
+					total += distance;
+				}
 			}
 		}
 		ave = total / counter;										//then calculate the average distance between points

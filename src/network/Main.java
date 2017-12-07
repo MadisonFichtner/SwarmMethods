@@ -53,7 +53,7 @@ public class Main {
 				e.printStackTrace();
 				System.out.println(e.getMessage());
 			}
-
+		}
 			int numHidLayers = 0;															//specify network configurations - here is where we will tune the CNN
 			int numHidNodes = 0;
 			int numOutputs = 5;					//number of possible clusters
@@ -101,7 +101,7 @@ public class Main {
 				for (int t = 0; t < 200; t++) {
 					clusteredData = pso.cluster(data);
 					for (int i = 0; i < clusteredData.size(); i++) {
-						double err = calcError(clusteredData.get(i));
+						double err = calcError(clusteredData, clusteredData.get(i));
 						total += err;
 					}
 					double ave = total / clusteredData.size();
@@ -112,10 +112,10 @@ public class Main {
 			case 5:
 				ACO aco = new ACO(data, 20);
 				total = 0;
-				for (int t = 0; t < 300; t++) {
+				for (int t = 0; t < 200; t++) {
 					clusteredData = aco.cluster();
 					for (int i = 0; i < clusteredData.size(); i++) {
-						double err = calcError(clusteredData.get(i));
+						double err = calcError(clusteredData, clusteredData.get(i));
 						total += err;
 					}
 					double ave = total / clusteredData.size();
@@ -125,27 +125,9 @@ public class Main {
 				break;
 			}
 			in.close();
-
-			calcAverageDistance(clusteredData);
 		}
-	}
 
-	/*
-	 * returns the average distance from centroid to members of the cluster
-	 */
-	private static void calcAverageDistance(ArrayList<Cluster> clusteredData) {
-		System.out.println("Distance from Center:");
-		for(Cluster cluster : clusteredData){
-			double clusterDistance = 0;
-			for(int i = 0; i < cluster.getMembers().size(); i++) {
-				clusterDistance += cluster.getMembers().get(i).calcDistance(cluster.getCenter());
-			}
-			clusterDistance = clusterDistance / cluster.getMembers().size();
-			System.out.println("\tCluster " + (clusteredData.indexOf(cluster)+1) + ": " + clusterDistance);
-		}
-	}
-
-	public static double calcError(Cluster c) {
+	public static double calcError(ArrayList<Cluster> clusters, Cluster c) {
 		double counter = 1;
 		double total = 0;
 		double ave = 0;
@@ -153,6 +135,24 @@ public class Main {
 			for (int j = 0; j < c.getMembers().size(); j++) {
 				total += c.getMembers().get(i).calcDistance(c.getMembers().get(j));				//calc distance to each point
 				counter++;	
+			}
+		}
+		for(Cluster cluster : clusters){														//calc distance from each point to center
+			double clusterDistance = 0;
+			for(int i = 0; i < cluster.getMembers().size(); i++) {
+				clusterDistance += cluster.getMembers().get(i).calcDistance(cluster.getCenter());
+			}
+			clusterDistance = clusterDistance / cluster.getMembers().size();
+			total += clusterDistance;
+			counter++;
+		}
+		for (Cluster d : clusters) {															//this block penalizes clusters if they are very close together
+			for (Cluster e : clusters) {
+				double distance = d.getCenter().calcDistance(e.getCenter());
+				if (distance < 20) {
+					total += distance;
+					counter++;
+				}
 			}
 		}
 		ave = total / counter;										//then calculate the average distance between points
