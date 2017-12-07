@@ -86,7 +86,6 @@ public class DBScan {
 				
 			}
 		}
-		// TODO Auto-generated method stub
 		for(DataPoint dataPoints : dataSet) {			//Ensure that if there are any datapoints with no labels to assign them as noise
 			if(dataPoints.getLabel() == null) {
 				dataPoints.setLabel(noise);
@@ -95,6 +94,7 @@ public class DBScan {
 				noise.addPoint(dataPoints);
 			}
 		}
+		/**
 		for(int i = 0; i < clusters.size(); i++) {		//printing out clusters
 			System.out.println("Cluster " + (i+1) + ": " + clusters.get(i).getMembers().size() + " data points");
 			for(int j = 0; j < clusters.get(i).getMembers().size(); j++) {
@@ -105,6 +105,22 @@ public class DBScan {
 			}
 			System.out.println("");
 		}
+		**/
+		
+		for(int i = 0; i < clusters.size(); i++) {
+			double average = 0;
+			System.out.println("Cluster " + (i+1) + ": " + clusters.get(i).getMembers().size() + " data points");
+			for(int j = 0; j < clusters.get(i).getMembers().size(); j++) {
+				for(int k = 0; k < clusters.get(i).getMembers().size(); k++) {
+					average += clusters.get(i).getMembers().get(i).calcDistance(clusters.get(i).getMembers().get(k));	
+				}
+			}
+			int numberConnections = 0;
+			numberConnections = clusters.get(i).getMembers().size();
+			average = average / ((numberConnections)*(numberConnections-1)/2);
+			System.out.println(average);
+		}
+		
 		System.out.println("\nSuccessfully clustered data into: " + clusters.size() + " clusters not including outliers.");
 		System.out.println("There were " + noise.getMembers().size() + " outliers tagged as 'noise'");
 		return clusters;

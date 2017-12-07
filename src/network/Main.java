@@ -133,6 +133,8 @@ public class Main {
 					counter++;	
 				}
 			}
+			double numberConnections = cluster.getMembers().size();
+			total += ((numberConnections)*(numberConnections-1)/2);
 		}
 		for (Cluster d : clusters) {															//this block penalizes clusters if they are very close together
 			for (Cluster e : clusters) {
