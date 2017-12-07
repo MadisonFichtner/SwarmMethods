@@ -26,7 +26,7 @@ public class DataPoint {
 		}
 		distance = Math.sqrt(distance);
 		return distance;
-	}
+}
 	
 	public void setLabel(Cluster label){
 		this.label = label;
