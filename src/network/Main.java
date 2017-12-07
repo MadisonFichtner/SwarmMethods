@@ -96,47 +96,29 @@ public class Main {
 				break;
 			case 4:		
 				PSO pso = new PSO();
-				double total = 0;
 				System.out.println("Average distance between points in the clusters is:");
 				for (int t = 0; t < 200; t++) {
 					clusteredData = pso.cluster(data);
-					for (int i = 0; i < clusteredData.size(); i++) {
-						double err = calcError(clusteredData, clusteredData.get(i));
-						total += err;
-					}
-					double ave = total / clusteredData.size();
-					System.out.println(ave);
-					total = 0;
+					double err = calcError(clusteredData);
+					System.out.println(err);
 				}
 				break;
 			case 5:
 				ACO aco = new ACO(data, 20);
-				total = 0;
 				for (int t = 0; t < 200; t++) {
 					clusteredData = aco.cluster();
-					for (int i = 0; i < clusteredData.size(); i++) {
-						double err = calcError(clusteredData, clusteredData.get(i));
-						total += err;
-					}
-					double ave = total / clusteredData.size();
-					System.out.println(ave);
-					total = 0;
+					double err = calcError(clusteredData);
+					System.out.println(err);
 				}
 				break;
 			}
 			in.close();
 		}
 
-	public static double calcError(ArrayList<Cluster> clusters, Cluster c) {
+	public static double calcError(ArrayList<Cluster> clusters) {
 		double counter = 1;
 		double total = 0;
 		double ave = 0;
-		for (int i = 0; i < c.getMembers().size(); i++) {
-			for (int j = 0; j < c.getMembers().size(); j++) {
-				total += c.getMembers().get(i).calcDistance(c.getMembers().get(j));				//calc distance to each point
-				counter++;	
-			}
-		}
 		for(Cluster cluster : clusters){														//calc distance from each point to center
 			double clusterDistance = 0;
 			for(int i = 0; i < cluster.getMembers().size(); i++) {
@@ -145,6 +127,12 @@ public class Main {
 			clusterDistance = clusterDistance / cluster.getMembers().size();
 			total += clusterDistance;
 			counter++;
+			for (int i = 0; i < cluster.getMembers().size(); i++) {
+				for (int j = 0; j < cluster.getMembers().size(); j++) {
+					total += cluster.getMembers().get(i).calcDistance(cluster.getMembers().get(j));				//calc distance to each point
+					counter++;	
+				}
+			}
 		}
 		for (Cluster d : clusters) {															//this block penalizes clusters if they are very close together
 			for (Cluster e : clusters) {
