@@ -45,7 +45,6 @@ public class CNN{
 				layers.get(0).getNeuron(i).addWeight(random.nextDouble());
 			}
 		}
-		printNetwork();
 		
 		clusters = new ArrayList<>();
 		for(int i = 0; i < numOutputs; i++){
@@ -110,6 +109,7 @@ public class CNN{
 				System.out.println("Number of Changes:  " + numChanges);
 				
 				if(numChanges < 5){	//end training if fewer than 5 changes
+					System.out.println("Final Network: ");
 					printNetwork();
 					break;
 				}
@@ -117,10 +117,6 @@ public class CNN{
 				numChanges = 0;
 				changeResetCounter = 0;
 			}
-		}
-		
-		for(Cluster c : clusters){
-			System.out.println("Size of Cluster " + (clusters.indexOf(c)+1) +  ": " + c.getMembers().size());
 		}
 		
 		//reset clusters
@@ -145,15 +141,12 @@ public class CNN{
 		}
 		
 		for(Cluster c : clusters){
-			System.out.println("Size of Cluster " + (clusters.indexOf(c)+1) +  ": " + c.getMembers().size());
+			for(DataPoint point : c.getMembers()){
+				point.unNormalize();
+			}
+			c.updateCenter(numInputs, data);
 		}
-		
-		ArrayList<Cluster> updatedClusters = new ArrayList<>();
-		for(Cluster c : clusters){
-			Cluster newCluster = c.updateCenter(data.get(0).getNumFeatures(), data);
-			updatedClusters.add(newCluster);
-		}
-		return updatedClusters;
+		return clusters;
 	}
 
 	//Randomly reset weights in network

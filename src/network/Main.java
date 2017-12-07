@@ -137,11 +137,27 @@ public class Main {
 				counter++;	
 			}
 		}
+<<<<<<< HEAD
 		for(Cluster cluster : clusters){														//calc distance from each point to center
+=======
+		in.close();
+		
+		calcAverageDistance(clusteredData);
+	}
+	
+	/*
+	 * returns the average distance from centroid to members of the cluster
+	 */
+	private static void calcAverageDistance(ArrayList<Cluster> clusteredData) {
+		System.out.println("Distance from Center:");
+		double averageDistance = 0;
+		for(Cluster cluster : clusteredData){
+>>>>>>> 8b5d180ab4ebfbf9f8e17a9d52a4468f2d8d8fb1
 			double clusterDistance = 0;
 			for(int i = 0; i < cluster.getMembers().size(); i++) {
 				clusterDistance += cluster.getMembers().get(i).calcDistance(cluster.getCenter());
 			}
+<<<<<<< HEAD
 			clusterDistance = clusterDistance / cluster.getMembers().size();
 			total += clusterDistance;
 			counter++;
@@ -157,5 +173,14 @@ public class Main {
 		}
 		ave = total / counter;										//then calculate the average distance between points
 		return ave;
+=======
+			clusterDistance /= cluster.getMembers().size();
+			averageDistance += clusterDistance;
+			System.out.println("\tCluster " + (clusteredData.indexOf(cluster)+1) + ": " + clusterDistance);
+			System.out.println("\t  Size: " + cluster.getMembers().size());
+		}
+		averageDistance /= clusteredData.size();
+		System.out.println("Average: " + averageDistance);
+>>>>>>> 8b5d180ab4ebfbf9f8e17a9d52a4468f2d8d8fb1
 	}
 }
