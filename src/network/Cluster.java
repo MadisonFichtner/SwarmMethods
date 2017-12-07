@@ -63,7 +63,7 @@ public class Cluster {
 				mean = mean + pointsInCluster.get(j).getFeature(k);
 				//mean = (mean) * pointsInCluster.get(j).getFeature(k);			//Geometric mean
 			}
-			mean = mean / numFeatures;
+			mean = mean / pointsInCluster.size();
 			//mean = Math.pow(mean, 1.0 / pointsInCluster.size());							//takes the numFeatures root of the mean
 			newFeatures[k] = mean;
 		}
