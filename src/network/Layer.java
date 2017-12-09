@@ -7,20 +7,18 @@ import java.util.ArrayList;
  */
 public class Layer {
 	private ArrayList<Neuron> neurons;
-	private int actFun;
 
 	/*
 	 * creates new layer
 	 * @param numNodes: number of nodes in the layer
 	 * @param actFun: type of activation function to be used
 	 */
-	public Layer(int numNodes, int actFun) {
-		this.actFun = actFun;
+	public Layer(int numNodes) {
 		neurons = new ArrayList<Neuron>();
 
 		//add nodes to layer
 		for(int i = 0; i < numNodes; i++){
-			addNeuron(new Neuron(actFun));
+			addNeuron(new Neuron());
 		}
 	}
 
@@ -44,14 +42,6 @@ public class Layer {
 		System.out.println("Layer " + num + ":");
 
 		System.out.println("\tNeuron Type: Weighted Sum");
-		switch(actFun){
-		case 1:
-			System.out.println("\tActivation Function: Linear");
-			break;
-		case 2:
-			System.out.println("\tActivation Function: Logistic");
-			break;
-			}
 
 		for(Neuron n : neurons){
 			n.printNeuron(neurons.indexOf(n)+1);

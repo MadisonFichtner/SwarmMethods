@@ -16,7 +16,7 @@ public class Main {
 		ArrayList<DataPoint> data = new ArrayList<DataPoint>();						//create list of samples to use - dataset essentially
 		int numInputs = 0;
 		int numDataPoints = 0;
-		String filename = "haberman.data";
+		String filename = "car.txt";
 		try {
 			Scanner s = new Scanner(new File(filename));							//create a new scanner, checks lines of data in file
 			while (s.hasNextLine()) {												//loop while there is another line
@@ -57,66 +57,63 @@ public class Main {
 				System.out.println(e.getMessage());
 			}
 		}
-			int numHidLayers = 0;															//specify network configurations - here is where we will tune the CNN
-			int numHidNodes = 0;
-			int numOutputs = 5;					//number of possible clusters
-			int hiddenActivation = 1;			//doesn't matter 			
-			int outputActivation = 2; 			//cnn activation
+		
+		int numOutputs = 5;					//number of possible clusters			
 
-			Scanner in = new Scanner(System.in);											//grab user input for the algorithm to use
-			System.out.println("What algorithm do you want to use?");
-			System.out.println("\t1)K-Means Clustering"); 
-			System.out.println("\t2)DB-Scan");
-			System.out.println("\t3)Competitive Learning Network");
-			System.out.println("\t4)Particle Swarm Optimization (PSO)");
-			System.out.println("\t5)Ant Colony Optimization (ACO)");
+		Scanner in = new Scanner(System.in);											//grab user input for the algorithm to use
+		System.out.println("What algorithm do you want to use?");
+		System.out.println("\t1)K-Means Clustering"); 
+		System.out.println("\t2)DB-Scan");
+		System.out.println("\t3)Competitive Learning Network");
+		System.out.println("\t4)Particle Swarm Optimization (PSO)");
+		System.out.println("\t5)Ant Colony Optimization (ACO)");
 
-			int selection = in.nextInt();
+		int selection = in.nextInt();
 
-			Collections.shuffle(data);													//randomize the data
+		Collections.shuffle(data);													//randomize the data
 
-			
-			//cluster the data using chosen algorithm
-			ArrayList<Cluster> clusteredData = null;
-			switch(selection){
-			case 1:																			//use k-means clustering
-				System.out.println("How many centroids?");
-				int k = in.nextInt();
-				KMeans kmeans = new KMeans(data, k);
-				clusteredData = kmeans.cluster(data);
-				break;
-			case 2:																			//use db-scan
-				System.out.println("Enter epsilon (max distance between neighbors): ");
-				double epsilon = in.nextDouble();
-				System.out.println("Enter minimum points required to make cluster: ");
-				int minPoints = in.nextInt();
-				DBScan dbScan = new DBScan(data, epsilon, minPoints);
-				clusteredData = dbScan.cluster(data);
-				break;
-			case 3:																			//use competitive learning neural network
-				CNN cnn = new CNN(numInputs, numHidLayers, numHidNodes, numOutputs, hiddenActivation, outputActivation, data);
-				clusteredData = cnn.cluster(data);
-				break;
-			case 4:																			//use particle swarm optimization
-				PSO pso = new PSO();
-				for (int t = 0; t < 200; t++) {
-					clusteredData = pso.cluster(data);
-					double err = calcError(clusteredData);
-					System.out.println(err);
-				}
-				break;
-			case 5:																			//use ant colony optimization
-				ACO aco = new ACO(data, 10);
-				for (int t = 0; t < 200; t++) {
-					clusteredData = aco.cluster();
-					double err = calcError(clusteredData);
-					System.out.println(err);
-				}
-				break;
+		
+		//cluster the data using chosen algorithm
+		ArrayList<Cluster> clusteredData = null;
+		switch(selection){
+		case 1:																			//use k-means clustering
+			System.out.println("How many centroids?");
+			int k = in.nextInt();
+			KMeans kmeans = new KMeans(data, k);
+			clusteredData = kmeans.cluster(data);
+			break;
+		case 2:																			//use db-scan
+			System.out.println("Enter epsilon (max distance between neighbors): ");
+			double epsilon = in.nextDouble();
+			System.out.println("Enter minimum points required to make cluster: ");
+			int minPoints = in.nextInt();
+			DBScan dbScan = new DBScan(data, epsilon, minPoints);
+			clusteredData = dbScan.cluster(data);
+			break;
+		case 3:																			//use competitive learning neural network
+			CNN cnn = new CNN(numInputs, numOutputs, data);
+			clusteredData = cnn.cluster(data);
+			break;
+		case 4:																			//use particle swarm optimization
+			PSO pso = new PSO();
+			for (int t = 0; t < 200; t++) {
+				clusteredData = pso.cluster(data);
+				double err = calcError(clusteredData);
+				System.out.println(err);
 			}
-			in.close();
-			System.out.println(calcError(clusteredData));
+			break;
+		case 5:																			//use ant colony optimization
+			ACO aco = new ACO(data, 10);
+			for (int t = 0; t < 200; t++) {
+				clusteredData = aco.cluster();
+				double err = calcError(clusteredData);
+				System.out.println(err);
+			}
+			break;
 		}
+		in.close();
+		System.out.println(calcError(clusteredData));
+	}
 
 	//this method is to calculate the "error" value, as explained in the header comment
 	public static double calcError(ArrayList<Cluster> clusters) {
