@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
 
-/*	Main class drives the creation and training of networks for Project 4. It reads in data files (which we manually have to specify) and then
- * 	gives the user an option of clustering that data using k-means, db-scan, a competitive learning neural network, PSO, or ACO
+/*	Main class drives the creation and running of algorithms for Project 4. It reads in data files (which we manually have to specify) and then
+ * 	gives the user an option of clustering that data using k-means, db-scan, a competitive learning neural network, PSO, or ACO. These algorithms
+ * 	print their final error value, which is calculated by finding the average of the distance between points in a cluster, the distance between
+ * 	points and their center, and the distance between clusters. A few of the algorithms print the error for every iteration, and others print
+ * 	just the final error. Tables for the former are included in the final project paper.
  */
 
 public class Main {
@@ -13,7 +16,7 @@ public class Main {
 		ArrayList<DataPoint> data = new ArrayList<DataPoint>();						//create list of samples to use - dataset essentially
 		int numInputs = 0;
 		int numDataPoints = 0;
-		String filename = "car.txt";
+		String filename = "haberman.data";
 		try {
 			Scanner s = new Scanner(new File(filename));							//create a new scanner, checks lines of data in file
 			while (s.hasNextLine()) {												//loop while there is another line
@@ -69,20 +72,20 @@ public class Main {
 			System.out.println("\t5)Ant Colony Optimization (ACO)");
 
 			int selection = in.nextInt();
-			//in.close();
 
 			Collections.shuffle(data);													//randomize the data
 
+			
 			//cluster the data using chosen algorithm
 			ArrayList<Cluster> clusteredData = null;
 			switch(selection){
-			case 1:	
+			case 1:																			//use k-means clustering
 				System.out.println("How many centroids?");
 				int k = in.nextInt();
 				KMeans kmeans = new KMeans(data, k);
 				clusteredData = kmeans.cluster(data);
 				break;
-			case 2:	
+			case 2:																			//use db-scan
 				System.out.println("Enter epsilon (max distance between neighbors): ");
 				double epsilon = in.nextDouble();
 				System.out.println("Enter minimum points required to make cluster: ");
@@ -90,21 +93,20 @@ public class Main {
 				DBScan dbScan = new DBScan(data, epsilon, minPoints);
 				clusteredData = dbScan.cluster(data);
 				break;
-			case 3:
+			case 3:																			//use competitive learning neural network
 				CNN cnn = new CNN(numInputs, numHidLayers, numHidNodes, numOutputs, hiddenActivation, outputActivation, data);
 				clusteredData = cnn.cluster(data);
 				break;
-			case 4:		
+			case 4:																			//use particle swarm optimization
 				PSO pso = new PSO();
-				System.out.println("Average distance between points in the clusters is:");
 				for (int t = 0; t < 200; t++) {
 					clusteredData = pso.cluster(data);
 					double err = calcError(clusteredData);
 					System.out.println(err);
 				}
 				break;
-			case 5:
-				ACO aco = new ACO(data, 20);
+			case 5:																			//use ant colony optimization
+				ACO aco = new ACO(data, 10);
 				for (int t = 0; t < 200; t++) {
 					clusteredData = aco.cluster();
 					double err = calcError(clusteredData);
@@ -116,17 +118,20 @@ public class Main {
 			System.out.println(calcError(clusteredData));
 		}
 
+	//this method is to calculate the "error" value, as explained in the header comment
 	public static double calcError(ArrayList<Cluster> clusters) {
 		double counter = 1;
 		double total = 0;
 		double ave = 0;
-		for(Cluster cluster : clusters){														//calc distance from each point to center
+		for(Cluster cluster : clusters){																		//calc distance from each point to center
 			double clusterDistance = 0;
 			for(int i = 0; i < cluster.getMembers().size(); i++) {
 				clusterDistance += cluster.getMembers().get(i).calcDistance(cluster.getCenter());
 			}
+			
 			clusterDistance = clusterDistance / cluster.getMembers().size();
 			total += clusterDistance;
+			
 			counter++;
 			for (int i = 0; i < cluster.getMembers().size(); i++) {
 				for (int j = 0; j < cluster.getMembers().size(); j++) {
@@ -137,7 +142,7 @@ public class Main {
 			double numberConnections = cluster.getMembers().size();
 			total += ((numberConnections)*(numberConnections-1)/2);
 		}
-		for (Cluster d : clusters) {															//this block penalizes clusters if they are very close together
+		for (Cluster d : clusters) {																			//this block penalizes clusters if they are very close together
 			for (Cluster e : clusters) {
 				double distance = d.getCenter().calcDistance(e.getCenter());
 				if (distance < 20) {

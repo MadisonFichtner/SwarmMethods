@@ -1,7 +1,8 @@
 package network;
 
-/* Represents a single data point in the cluster, and contains a list of inputs and then 
- * a class value.
+/* 	Represents a single data point in the cluster, and contains a list of inputs and then 
+ * 	a class value. Data points will be grouped in clusters, so manipulation of a single one
+ * 	happens here. 
  */
 public class DataPoint {
 	private double[] features;
@@ -16,11 +17,12 @@ public class DataPoint {
 		this.label = null;
 	}
 	
+	//calculate the distance from this data point to another that is read in based on feature values
+	//@param other - the data point to calculate the distance to
 	public double calcDistance(DataPoint other) {
 		double distance = 0;
 		for(int i = 0; i < other.getNumFeatures(); i++) {
 			double difference = this.getFeature(i) - other.getFeature(i);
-			//System.out.println(this.getFeature(i) + " " + other.getFeature(i));
 			difference = Math.pow(difference, 2);
 			distance += difference;
 		}
@@ -28,10 +30,13 @@ public class DataPoint {
 		return distance;
 }
 	
+	//set the cluster label of the point
+	//@param label - cluster to label the point with
 	public void setLabel(Cluster label){
 		this.label = label;
 	}
 	
+	//return the point's cluster label
 	public Cluster getLabel() {
 		return label;
 	}
@@ -47,10 +52,12 @@ public class DataPoint {
 		return features;
 	}
 	
+	//return the number of features of the point
 	public int getNumFeatures(){
 		return features.length;
 	}
 	
+	//logic to normalize the data point
 	public void normalize() {
 		if(!normalized){
 			length = 0;
@@ -66,6 +73,7 @@ public class DataPoint {
 		}	
 	}
 	
+	//logic to unnormalize the data point
 	public void unNormalize(){
 		for(int i = 0; i < features.length; i++){
 			features[i] *= length;
