@@ -101,6 +101,30 @@ public class Cluster {
 		return newCluster;
 	}
 	
+	public Cluster updateCenterKMeans(int numFeatures, ArrayList<DataPoint> data) {
+		double[] newFeatures = new double[numFeatures];
+		ArrayList<DataPoint> pointsInCluster = members;
+		for(int k = 0; k < numFeatures; k++) {
+			double mean = 0;												//Starting at 1 because 
+			for(int j = 0; j < pointsInCluster.size(); j++) {					
+				mean = mean + pointsInCluster.get(j).getFeature(k);
+				//mean = (mean) * pointsInCluster.get(j).getFeature(k);			//Geometric mean
+			}
+			mean = mean / pointsInCluster.size();
+			//mean = Math.pow(mean, 1.0 / pointsInCluster.size());							//takes the numFeatures root of the mean
+			newFeatures[k] = mean;
+		}
+		if(members.size() == 0) {
+			DataPoint newCenter = new DataPoint(data.get(rand.nextInt(data.size())).getFeatures());	//set center to random point in data
+			Cluster newCluster = new Cluster(newCenter, members);
+			return newCluster;
+		}
+		//center = new DataPoint(newFeatures);
+		DataPoint newCenter = new DataPoint(newFeatures);
+		Cluster newCluster = new Cluster(newCenter, members);
+		return newCluster;
+	}
+	
 	//return the center of the cluster
 	public DataPoint getCenter() {
 		return center;

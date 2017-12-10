@@ -31,7 +31,7 @@ public class KMeans {
 		}
 		
 		ArrayList<Cluster> oldClusters = new ArrayList<>();		//Keep track of old clusters to check to see if they chagne between iterations
-		this.iterations = 10000;
+		this.iterations = 0;
 	}
 	
 	/*
@@ -48,7 +48,6 @@ public class KMeans {
 			setLabels(dataSet, clusters);	//Set labels of each data point in data set to the centroids
 			
 			clusters = getCentroids(clusters, dataSet);			//Generate new centroids based on data point connected to the centroids and return the clusters
-
 		}
 		return clusters;
 	}
@@ -101,7 +100,7 @@ public class KMeans {
 			System.out.println("\nIterations required for the centroids to not be updated further: " + iterations);		//Print out number of iterations required for convergence
 			return true; //oldClusters == clusters;	
 		}
-		else if(iterations == iterations) {			//If KMeans doesnt converge before iterations, print out same info as above
+		else if(iterations == 10000) {			//If KMeans doesnt converge before iterations, print out same info as above
 			for(int i = 0; i < clusters.size(); i++) {
 				System.out.println("\nCluster " + (i + 1) + ":");
 				for(int j = 0; j < numFeatures; j++) {
@@ -166,7 +165,7 @@ public class KMeans {
 		ArrayList<Cluster> centroids = new ArrayList<>();				//Create temporary centroids
 		for(int i = 0; i < clusters.size(); i++) {						//for each cluster
 			Cluster currentCluster = clusters.get(i);					//Set current cluster to i
-			currentCluster = clusters.get(i).updateCenter(numFeatures, dataSet);		//Update current cluster using updateCenter and the number of features
+			currentCluster = clusters.get(i).updateCenterKMeans(numFeatures, dataSet);		//Update current cluster using updateCenter and the number of features
 			centroids.add(currentCluster);									//Add updated cluster to temporary centroids
 		}
 		return centroids;
