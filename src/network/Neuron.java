@@ -12,32 +12,8 @@ public class Neuron {
 
 	//create a new neuron with its activation function
 	//@param actFun: activation function to be used
-	public Neuron(int actFun) {
-		this.actFun = actFun;
+	public Neuron() {
 		weights = new ArrayList<Double>();
-	}
-
-	//the function to calculate the output of the activation function of the neuron
-	public void activate() {
-		switch (actFun) {
-		case 1:						//represents a linear activation function
-			break;
-		case 2:						//cnn activation
-			output = 1/(1+Math.exp(-output));
-			break;
-		}
-	}
-	
-	//returns derivative of activation function
-	public double derivActivate() {
-		switch (actFun) {
-		case 1:						//derivative of linear is constant here
-			return 1;
-		case 2:						//sigmoidal - logistic
-			return output * (1-output);
-		default:
-			return 0;
-		}
 	}
 
 	//adds a connection to the previous layer neuron and the weight of the connection
@@ -71,6 +47,7 @@ public class Neuron {
 		this.weights.addAll(weights);
 	}
 	
+	//normalize the weight vector
 	public void normalize() {
 		double length = 0;
 		for(double weight : weights) {

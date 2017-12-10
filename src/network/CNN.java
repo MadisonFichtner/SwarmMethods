@@ -2,42 +2,32 @@ package network;
 import java.util.ArrayList;
 import java.util.Random;
 
-/*	The Network class represents a single network in a population and its related functions and attributes. This class
- * 	is changed a bit from Project 2, as it had to incorporate new functionality for the 3 new training algorithms.
+/*	
+ * The CNN class represents a competitive neural network which clusters data by first updating the weights based on the inputs
+ * then clustering based on the which output node produces the highest output
  */
 
 public class CNN{
 	private Random random = new Random();
-	private ArrayList<Layer> layers;
-	private double learningRate;
-	private int numInputs;
-	private int numHidLayers;
-	private int numHidNodes;
-	private int numOutputs;
-	private int actFunHidden;
-	private int actFunOutput;
-	private ArrayList<Cluster> clusters;
+	private ArrayList<Layer> layers;//the layer objects in the network
+	private double learningRate;	//network learning rate
+	private int numInputs;			//number of inputs
+	private int numOutputs;			//number of outputs or clusters
+	private ArrayList<Cluster> clusters; //clusters for the data to be assigned to
 
 	/*
-	 * Create an MLP network
+	 * Create an Competitive learning neural network
 	 * @param numInputs: number of input nodes
-	 * @param numHidLayers: number of hidden layers
-	 * @param numHidNodes: number of nodes in hidden layers
 	 * @param numOutputs: number of output nodes
-	 * @param actFun: type of activation function for nodes
+	 * @param actFunOutput: type of activation function for nodes
 	 */
-	public CNN(int numInputs, int numHidLayers, int numHidNodes, int numOutputs, int actFunHidden, int actFunOutput, ArrayList<DataPoint> data) {
+	public CNN(int numInputs, int numOutputs, ArrayList<DataPoint> data) {
 		layers = new ArrayList<Layer>();
 		//create input layer with inputs number of nodes and a linear activation function
-		layers.add(new Layer(numInputs, 1));
-		
-		//create hidden layers with hidNode number of nodes and given activation function
-		for(int i = 0; i < numHidLayers; i++) {
-			layers.add(new Layer(numHidNodes, actFunHidden));
-		}
+		layers.add(new Layer(numInputs));
 		
 		//create output layer with outputs number of nodes and given activation function
-		layers.add(new Layer(numOutputs, actFunOutput));
+		layers.add(new Layer(numOutputs));
 		
 		//add random weights between layers
 		for(int i = 0; i < layers.get(0).size(); i++){
@@ -46,38 +36,39 @@ public class CNN{
 			}
 		}
 		
+		//initialize empty clusters
 		clusters = new ArrayList<>();
 		for(int i = 0; i < numOutputs; i++){
 			clusters.add(new Cluster());
 		}
 		
-		//this block represents our manually tunable parameters
-		this.learningRate = 0.01;
+		
+		this.learningRate = 0.01;	//set the learning rate for the network
 		this.numInputs = numInputs;
-		this.numHidLayers = numHidLayers;
-		this.numHidNodes = numHidNodes;
 		this.numOutputs = numOutputs;
-		this.actFunHidden = actFunHidden;
-		this.actFunOutput = actFunOutput;
 	}
 
+	/*
+	 * this method recieves a list of DataPoints and returns a list of clusters
+	 * to which the data points are assigned
+	 */
 	public ArrayList<Cluster> cluster(ArrayList<DataPoint> data) {
 		for(int i = 0; i < layers.get(0).size(); i++) {	//iterate through input layer to normalize weights
 			Neuron cur = layers.get(0).getNeuron(i);
-			cur.normalize();
+			cur.normalize();	//normalize weight vector
 		}
 		
-		int numChanges = 0;
-		int changeResetCounter = 0;
+		int numChanges = 0;			//number of changes in clusters
+		int changeResetCounter = 0; //count how many iterations have been done
 		
 		//randomly get points from data to train the network
 		for(int i = 0; i < 100000; i++) {
 			DataPoint point = data.get(random.nextInt(data.size())); //get random point from data
 			point.normalize();		//normalize data point
-			calcOutputs(point.getFeatures());
+			calcOutputs(point.getFeatures());	//calculate output nodes ouputs
 			int winner = 0;
 			double best = 0;
-			for(int j = 0 ; j < layers.get(1).size(); j++) {
+			for(int j = 0 ; j < layers.get(1).size(); j++) {	//determine which output wins
 				if(layers.get(1).getNeuron(j).getOutput() > best) {
 					winner = j;
 					best = layers.get(1).getNeuron(j).getOutput();
@@ -89,22 +80,19 @@ public class CNN{
 					cRemoved = c;		 //the cluster from which the point was removed
 			}
 			
+			//check if there was a change in clusters
 			if(cRemoved == null)
 				numChanges++;
 			else if(cRemoved != clusters.get(winner))
 				numChanges++;
 			
 			clusters.get(winner).addPoint(point);	//add point to the winning cluster
-			
-			//printNetwork();
-			/*String pointData = "";
-			for(double feature : point.getFeatures())
-				pointData += String.format("%.2f", feature) + " ";
-			System.out.println(pointData + ": cluster " + (winner+1));*/
 						
-			updateWeights(winner);
+			updateWeights(winner);	//update weight vectors based on winning neuron
 			
 			changeResetCounter++;
+			
+			//determine how many changeds in the clusters there have been
 			if(changeResetCounter >= 100){
 				System.out.println("Number of Changes:  " + numChanges);
 				
@@ -140,6 +128,7 @@ public class CNN{
 			clusters.get(winner).addPoint(point);	//add point to the winning cluster
 		}
 		
+		//restore data points to original values before returning
 		for(Cluster c : clusters){
 			for(DataPoint point : c.getMembers()){
 				point.unNormalize();
@@ -147,21 +136,8 @@ public class CNN{
 			c.updateCenter(numInputs, data);
 			System.out.println(c.getCenter());
 		}
-		return clusters;
+		return clusters;	//return clustered data
 	}
-
-	//Randomly reset weights in network
-	public void reset(){
-		for(int i = 0; i < layers.size()-1; i++) {
-			for(int j = 0; j < layers.get(i).size(); j++) {
-				for(int k = 0; k < layers.get(i+1).size(); k++) {
-					double weight = (random.nextDouble()*2)-1;
-					layers.get(i).getNeuron(j).setWeightTo(k, weight);
-				}
-			}
-		}
-	}
-
 	
 	//calulates the output of the network
 	//@param inputs - the inputs for the network (from a data point)
@@ -182,12 +158,13 @@ public class CNN{
 		}
 	}
 	
+	//update the weights leading to the winning neuron
 	public void updateWeights(int winNeuron) {
 		for(int i = 0; i < layers.get(0).size(); i++) {	//iterate through input layer to update weights
 			Neuron cur = layers.get(0).getNeuron(i);
 			double newWeight = cur.getWeightTo(winNeuron) + learningRate*(cur.getOutput()-cur.getWeightTo(winNeuron));
 			cur.setWeightTo(winNeuron, newWeight);
-			cur.normalize();
+			cur.normalize();	//normalize weight vector
 		}
 	}
 
@@ -203,29 +180,9 @@ public class CNN{
 		return numInputs;
 	}
 	
-	//returns the number of hidden layers
-	public int getNumHidLayers(){
-		return numHidLayers;
-	}
-	
-	//returns the number of hidden nodes
-	public int getNumHidNodes(){
-		return numHidNodes;
-	}
-	
 	//returns the number of outputs of the network
 	public int getNumOutputs(){
 		return numOutputs;
-	}
-	
-	//returns the network's activation function for the hidden layers
-	public int getActFunHidden() {
-		return actFunHidden;
-	}
-	
-	//returns the activation function for the output layer
-	public int getActFunOutput() {
-		return actFunOutput;
 	}
 	
 	//returns the learning rate for assessment of convergence rate
