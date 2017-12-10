@@ -107,27 +107,36 @@ public class DBScan {
 		}
 		**/
 		
-		for(int i = 0; i < clusters.size(); i++) {
-			double average = 0;
-			System.out.println("Cluster " + (i+1) + ": " + clusters.get(i).getMembers().size() + " data points");
-			for(int j = 0; j < clusters.get(i).getMembers().size(); j++) {
-				for(int k = 0; k < clusters.get(i).getMembers().size(); k++) {
-					average += clusters.get(i).getMembers().get(i).calcDistance(clusters.get(i).getMembers().get(k));	
+		//Calculating average distance between all points in each cluster and printing them out
+		double overallAverage = 0;
+		for(int i = 0; i < clusters.size(); i++) {		//For each cluster
+			double average = 0;							//Set average for that cluster to 0
+			System.out.println("Cluster " + (i+1) + ": " + clusters.get(i).getMembers().size() + " data points");	//Print out number of points in current cluster
+			for(int j = 0; j < clusters.get(i).getMembers().size(); j++) {				//For each member in the cluster
+				for(int k = 0; k < clusters.get(i).getMembers().size(); k++) {			//For each member in the cluster
+					average += clusters.get(i).getMembers().get(i).calcDistance(clusters.get(i).getMembers().get(k));	//Add distance between point j and k to average
 				}
 			}
-			int numberConnections = 0;
-			numberConnections = clusters.get(i).getMembers().size();
-			average = average / ((numberConnections)*(numberConnections-1)/2);
+			int numberConnections = 0;							//Set numberConnections to 0
+			numberConnections = clusters.get(i).getMembers().size();		//Set numberConnections to the number of members in the cluster
+			average = average / ((numberConnections)*(numberConnections-1)/2);		//set average to the sum of all distances divided by the number of connections in the cluster
 			System.out.println(average);
+			overallAverage += average;				//Increment cluster average to overall average
 		}
-		
+		overallAverage = overallAverage / clusters.size();		//Divide overall average by number of clusters
+		System.out.println("Overall Avg: " + overallAverage);
 		System.out.println("\nSuccessfully clustered data into: " + clusters.size() + " clusters not including outliers.");
 		System.out.println("There were " + noise.getMembers().size() + " outliers tagged as 'noise'");
 		return clusters;
 	}
 	
-	//if point has minPoints neighbors in epsilon distance, create cluster. If not, mark point as noise that can later be found in another epsilon
-	//If a point is found to be a dense part of cluster, its neighborhood is also part of that cluster. Hence, all points found within the neighborhood are added
+	/*
+	 * If point has minPoints neighbors in epsilon distance, create cluster. If not, mark point as noise that can later be found in another epsilon
+	 * If a point is found to be a dense part of cluster, its neighborhood is also part of that cluster. Hence, all points found within the neighborhood are added
+	 * 
+	 * @param dataSet -> the overall data set being clustered
+	 * @param point -> the point beign measured from
+	 */
 	public ArrayList<DataPoint> setNeighbors(ArrayList<DataPoint> dataSet, DataPoint point) {		
 		ArrayList<DataPoint> neighbors = new ArrayList<>();
 		for(int i = 0; i < dataSet.size(); i++) {
