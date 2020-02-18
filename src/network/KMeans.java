@@ -1,5 +1,8 @@
 package network;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 /*
@@ -88,16 +91,38 @@ public class KMeans {
 			convergence = true;
 		}
 		if(convergence == true) {			//if convergence is true
-			for(int i = 0; i < clusters.size(); i++) {				//for each cluster
-				System.out.println("\nCluster " + (i + 1) + ":");	//print out cluster: i
-				for(int j = 0; j < numFeatures; j++) {				//for each feature in the center datapoint
-					System.out.printf("%.2f", clusters.get(i).getCenter().getFeature(j));		//print out the center's features
-					System.out.print("	");
+			FileWriter myWriter;
+			try {
+				File myObj = new File("personasOutput.csv");
+				myWriter = new FileWriter(myObj);
+				for(int i = 0; i < clusters.size(); i++) {				//for each cluster
+					System.out.println("\nCluster " + (i + 1) + " Center Point:");	//print out cluster: i
+					for(int j = 0; j < numFeatures; j++) {				//for each feature in the center datapoint
+						System.out.printf("%.2f", clusters.get(i).getCenter().getFeature(j)); //print out the center's features
+						System.out.printf(" ");
+					}
+					System.out.println("");
+					for(int k = 0; k < clusters.get(i).getMembers().size(); k++) {
+						myWriter.write("Cluster " + (i+1) + ",");
+						for(int l = 0; l < numFeatures; l++) {
+							myWriter.write(Double.toString(clusters.get(i).getMembers().get(k).getFeature(l)));
+							myWriter.write(",");
+							System.out.printf("%.2f", clusters.get(i).getMembers().get(k).getFeature(l));
+							System.out.printf(" ");
+						}
+					myWriter.write("\n");
+					System.out.println("");
+					}
+					myWriter.write("\n");
+					System.out.println(" ");
 				}
 				System.out.println("");
+				System.out.println("\nIterations required for the centroids to not be updated further: " + iterations);		//Print out number of iterations required for convergence
+		        myWriter.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			System.out.println("");
-			System.out.println("\nIterations required for the centroids to not be updated further: " + iterations);		//Print out number of iterations required for convergence
 			return true; //oldClusters == clusters;	
 		}
 		else if(iterations == 10000) {			//If KMeans doesnt converge before iterations, print out same info as above

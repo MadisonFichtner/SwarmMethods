@@ -16,7 +16,7 @@ public class Main {
 		ArrayList<DataPoint> data = new ArrayList<DataPoint>();						//create list of samples to use - dataset essentially
 		int numInputs = 0;
 		int numDataPoints = 0;
-		String filename = "haberman.data";
+		String filename = "sessionPersonas.txt";
 		try {
 			Scanner s = new Scanner(new File(filename));							//create a new scanner, checks lines of data in file
 			while (s.hasNextLine()) {												//loop while there is another line
@@ -30,7 +30,7 @@ public class Main {
 					double element = Double.parseDouble(lineScan.next());
 					inputs.add(element);													//parse the token to be a double and add to the input arraylist
 				}																		//update counter to reflect input size (total - 1, since last token is output
-				counter--;
+				//counter--;
 				double[] passIn = new double[counter];									//this is the array that will be passed to sample class
 				for (int i = 0; i < counter; i++) {
 					passIn[i] = inputs.get(i);											//initialize the input array
